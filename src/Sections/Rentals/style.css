@@ -1,0 +1,109 @@
+.main-rental-div {
+    padding: 60px 0px;
+}
+
+.rentals-hd {
+    font-weight: 800;
+    color: var(--heading-color);
+    position: relative;
+}
+
+.rentals-hd::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 150px;
+    height: 2px;
+    background-color: var(--color-2);
+}
+
+.houses-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    padding: 50px 0px;
+}
+
+.house-card {
+    width: 30%;
+    height: auto;
+    border-radius: 16px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.house-img-div {
+    width: 100%;
+    height: 300px;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.house-img-div>img {
+    width: 100%;
+    height: 100%;
+}
+
+.house-details-div {
+    padding: 10px 0px;
+}
+
+.house-details-div>h3 {
+    margin-bottom: 0;
+    text-transform: capitalize;
+}
+
+.house-address {
+    margin-bottom: 0;
+    font-size: 14px;
+    color: var(--text-color);
+    text-transform: capitalize;
+}
+
+.house-price {
+    margin-bottom: 0;
+    color: var(--color-2);
+}
+
+.house-details-div>button {
+    width: 100%;
+    padding: 5px 0px;
+    background-color: var(--heading-color);
+    color: white;
+    margin-top: 10px;
+    border-radius: 16px;
+    transition: .3s;
+}
+
+.house-details-div>button:hover {
+    background-color: transparent;
+    color: black;
+}
+
+@media only screen and (max-width:992px) {
+    .house-card {
+        width: 40%;
+    }
+}
+
+@media only screen and (max-width:768px) {
+    .house-card {
+        width: 48%;
+    }
+
+    .house-img-div {
+        height: 250px;
+    }
+}
+
+@media only screen and (max-width:576px) {
+    .house-card {
+        width: 90%;
+    }
+
+    .house-img-div {
+        height: 250px;
+    }
+}

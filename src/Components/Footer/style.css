@@ -1,0 +1,162 @@
+.footer-main-div {
+    width: 100%;
+    height: 400px;
+    background-color: var(--footer-color);
+    margin-top: 100px;
+}
+
+.footer-container {
+    width: 100%;
+    height: 100%;
+    padding-top: 60px;
+}
+
+.upper-footer {
+    width: 100%;
+    height: 90%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.footer-sec-1 {
+    width: 40%;
+    height: 100%;
+}
+
+.footer-sec-1>h1 {
+    color: var(--heading-color);
+}
+
+.footer-sec-1>p {
+    color: var(--text-color);
+}
+
+.social-icons {
+    width: 40px;
+    height: 40px;
+    text-decoration: none;
+    background-color: white;
+    color: black;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    margin-right: 10px;
+    transition: .3s;
+}
+
+.social-icons:hover {
+    background-color: black;
+    color: white;
+}
+
+.footer-sec-2 {
+    width: 50%;
+    height: 100%;
+}
+
+.sub-sec-1 {
+    width: 100%;
+    height: 60%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.property-div {
+    width: 33%;
+    height: 100%;
+}
+
+.property-div>h4 {
+    color: var(--heading-color);
+    font-size: 20px;
+}
+
+.property-div>ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.property-div>ul>li {
+    margin-top: 5px;
+}
+
+.footer-links {
+    text-decoration: none;
+    font-size: 16px;
+    color: var(--text-color);
+}
+
+.footer-links:hover {
+    color: var(--heading-color);
+}
+
+.sub-sec-2 {
+    width: 100%;
+    height: 40%;
+}
+
+.sub-sec-2>h3 {
+    color: var(--heading-color);
+}
+
+.sub-sec-2>input {
+    width: 250px;
+    height: 50px;
+    padding: 10px 20px;
+    background-color: white;
+    margin-top: 1px;
+}
+
+.sub-sec-2>button {
+    height: 50px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background-color: black;
+    color: white;
+}
+
+.sub-sec-2>button:hover {
+    background-color: white;
+    color: black;
+}
+
+.lower-footer {
+    width: 100%;
+    height: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    color: var(--text-color);
+    border-top: black 1px solid;
+}
+
+@media only screen and (max-width:992px) {
+    .footer-main-div {
+        height: auto;
+    }
+
+    .upper-footer {
+        flex-direction: column;
+    }
+
+    .footer-sec-1 {
+        width: 100%;
+        margin: 20px 0px;
+    }
+
+    .footer-sec-2 {
+        width: 100%;
+        margin: 20px 0px;
+    }
+}
+
+@media only screen and (max-width:576px) {
+    .property-div {
+        width: 45%;
+        margin: 10px 0px;
+    }
+}

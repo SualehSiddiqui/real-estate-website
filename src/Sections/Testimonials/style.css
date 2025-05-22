@@ -1,0 +1,141 @@
+.testimonials-main {
+    background-color: white;
+    width: 100%;
+    min-height: 800px;
+    overflow: hidden;
+    padding: 60px 0px;
+}
+
+.testimonials-container {
+    color: black;
+    padding: 0px 0px;
+}
+
+.testimonials-all-div {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.test-swipper {
+    width: 100%;
+    padding-top: 150px;
+    padding-bottom: 150px;
+    position: relative;
+}
+
+.previousButton,
+.nextButton {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    font-size: 30px;
+}
+
+.previousButton {
+    left: 10px;
+
+}
+
+.nextButton {
+    right: 10px;
+}
+
+
+.test-swipper-slide {
+    background-color: #d1ebff;
+    width: 60%;
+    min-height: 400px;
+    box-shadow: 0px 15px 50px rgba(0, 0, 0, 0.2);
+    filter: blur(4px);
+    border-radius: 10px;
+    position: relative;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-2);
+}
+
+.swiper-slide-active {
+    background-color: #fff;
+    filter: blur(0px);
+}
+
+.test-icon-div {
+    position: absolute;
+    width: 100%;
+    top: -90px;
+    display: flex;
+    justify-content: center;
+}
+
+.test-icon-div>img {
+    width: 180px;
+    height: 180px;
+}
+
+.quote-img {
+    width: 70px;
+    position: absolute;
+    opacity: 0.6;
+}
+
+.quote1-img {
+    top: 20px;
+    left: 20px;
+}
+
+.quote2-img {
+    right: 20px;
+    bottom: 20px;
+}
+
+.swiper-slide>p {
+    width: 200px;
+    height: 30px;
+    margin-top: 70px;
+    display: flex;
+    justify-content: center;
+}
+
+.test-details-div {
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.test-details-div>p {
+    width: 100%;
+    text-align: center;
+    color: var(--text-color);
+    font-size: 18px;
+}
+
+.test-details-div>h2 {
+    color: var(--heading-color);
+}
+
+@media only screen and (max-width:576px) {
+    .testimonials-container>h1 {
+        font-size: 3.5rem;
+    }
+
+    .swiper-slide {
+        width: 100%;
+    }
+}

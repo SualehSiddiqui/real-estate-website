@@ -1,0 +1,14 @@
+.contact-btn-nav {
+    padding: 5px 10px;
+    border-radius: 15px;
+    background-color: var(--color-2);
+    color: white;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    transition: .2s;
+}
+
+.contact-btn-nav:hover {
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}

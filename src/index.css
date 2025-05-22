@@ -1,1 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
 
+body {
+    margin: 0;
+    font-family: 'Rubik', sans-serif !important;
+    /* Ensure font name is consistent */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+    font-family: 'Rubik', monospace !important;
+    /* Ensure font name is consistent */
+}
+
+:root {
+    --color-1: #F3FFF3;
+    --color-2: #68B2DC;
+    --color-3: #D3E7EC;
+    --text-color: #707070;
+    --heading-color: #000000;
+    --footer-color: #D1D1D1;
+}
