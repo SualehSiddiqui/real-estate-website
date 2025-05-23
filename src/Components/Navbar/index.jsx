@@ -3,12 +3,34 @@ import "./style.css"
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import { FaPhone } from "react-icons/fa";
+import { useLocation } from 'react-router-dom';
 
 
-function NavScrollExample() {
+function NavbarComp({ withoutHero }) {
+
+    const location = useLocation();
+
+    const navLinks = [
+        {
+            title: 'Home',
+            link: '/',
+        },
+        {
+            title: 'Buy',
+            link: '/buy',
+        },
+        {
+            title: 'Rent',
+            link: '/rent',
+        },
+        {
+            title: 'About',
+            link: '/about',
+        },
+    ]
+
     return (
-        <Navbar expand="md" className='py-3'>
+        <Navbar expand="md" className={`py-3 main-nav-div ${withoutHero ? 'nav-not-hero' : ''}`}>
             <Container>
                 <Navbar.Brand href="#">Rent Bro</Navbar.Brand>
                 <Navbar.Toggle aria-controls="navbarScroll" />
@@ -18,15 +40,15 @@ function NavScrollExample() {
                         style={{ maxHeight: '100px' }}
                         navbarScroll
                     >
-                        <Nav.Link href="#action2" className='mx-md-3'>Home</Nav.Link>
-                        <Nav.Link href="#action1" className='mx-md-3'>Buy</Nav.Link>
-                        <Nav.Link href="#action2" className='mx-md-3'>Rent</Nav.Link>
-                        <Nav.Link href="#action2" className='mx-md-3'>About</Nav.Link>
+                        {
+                            navLinks.map((navItem, key) => (
+                                <Nav.Link href={navItem.link} key={key} className={`mx-md-3 ${navItem.link === location.pathname ? 'active-link' : ''}`}>{navItem.title}</Nav.Link>
+                            ))
+                        }
                     </Nav>
                     <Form>
                         <button className='contact-btn-nav'>
-                            Contact us
-                            <FaPhone className='ms-1' size={14}/>
+                            Login as Agent
                         </button>
                     </Form>
                 </Navbar.Collapse>
@@ -35,4 +57,4 @@ function NavScrollExample() {
     );
 }
 
-export default NavScrollExample;
+export default NavbarComp;

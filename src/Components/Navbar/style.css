@@ -1,3 +1,11 @@
+.main-nav-div{
+    z-index: 999;
+}
+
+.nav-not-hero{
+    border-bottom: 1px solid gray !important;
+}
+
 .contact-btn-nav {
     padding: 5px 10px;
     border-radius: 15px;
@@ -11,4 +19,8 @@
 
 .contact-btn-nav:hover {
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.active-link {
+    color: black;
 }

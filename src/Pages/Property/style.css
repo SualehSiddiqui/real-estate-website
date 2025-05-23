@@ -1,0 +1,321 @@
+.main-property-div {
+    width: 100%;
+    padding: 60px 0px;
+}
+
+.main-content-div {
+    width: 75%;
+    color: var(--heading-color);
+}
+
+.property-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.main-img-div {
+    width: 100%;
+}
+
+.ant-carousel {
+    width: 100%;
+    height: 450px;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.product-carousel-div {
+    margin-bottom: 30px;
+    width: 100%;
+    height: 450px;
+}
+
+.product-carousel-slide {
+    width: 100%;
+    height: 450px;
+}
+
+.product-carousel-arrows {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgb(0, 0, 0, 0.6);
+    color: white;
+    font-size: 30px;
+    font-weight: 200;
+    position: absolute;
+    top: 50%;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.product-carousel-arrows:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.left-arrow {
+    left: 10px;
+}
+
+.right-arrow {
+    right: 10px;
+}
+
+.green-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: green;
+    float: left;
+}
+
+.house-details-div {
+    width: 60%;
+}
+
+.house-price {
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.house-price>span {
+    font-size: 18px;
+    font-weight: normal;
+}
+
+.house-structure-details>span {
+    font-weight: 600;
+}
+
+.house-address,
+.house-hd {
+    font-weight: 600;
+    font-size: 20px;
+}
+
+.house-location-div {
+    width: 40%;
+    height: 200px;
+    border-radius: 8px;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+}
+
+.property-details-div {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.property-details-div>div {
+    width: 33%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 10px 0px;
+}
+
+.property-details-div>div>p {
+    font-size: 16px;
+    font-weight: 200;
+}
+
+.property-details-div>div>p>span {
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.see-more-btn {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.contact-btn-house,
+.contact-btn-house-res {
+    padding: 15px 30px;
+    border-radius: 28px;
+    background-color: black;
+    border: none;
+    color: white;
+}
+
+.contact-btn-house:hover {
+    background-color: gray;
+}
+
+.contact-btn-house-res {
+    width: 60%;
+    height: 40px;
+    padding: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.contact-btn-house-res:hover {
+    background-color: white;
+    border: 1px solid black;
+    color: black;
+}
+
+.contact-btn-div-res {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    justify-content: center;
+    align-items: center;
+    border-top: 1px solid gray;
+    background-color: white;
+}
+
+.features-sub-hd {
+    border-bottom: 1px solid var(--text-color);
+    padding-bottom: 5px;
+    font-size: 18px;
+    font-weight: 400;
+}
+
+.feature-list-div {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.feature-list {
+    width: 50%;
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+.feature-list>li {
+    color: black;
+    padding: 5px 0px;
+}
+
+.get-quote-div {
+    width: 24%;
+    height: auto;
+}
+
+.get-quote-form {
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+    padding: 10px;
+}
+
+.get-quote-form>h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.get-quote-form>input,
+.get-quote-form>textarea {
+    width: 100%;
+    height: 40px;
+    padding: 5px;
+    margin: 5px 0px;
+    border-radius: 10px;
+    border: 1px solid black;
+}
+
+.get-quote-form>textarea {
+    height: 70px;
+    border: 1px solid black;
+}
+
+.get-quote-form>button {
+    width: 100%;
+    padding: 5px 0px;
+    background-color: var(--color-2);
+    color: white;
+    border-radius: 16px;
+    border: none;
+}
+
+.get-quote-form>button:hover {
+    background-color: #3c98ce;
+}
+
+.get-quote-form>p {
+    color: var(--text-color);
+    font-size: 10px;
+    margin-top: 10px;
+    margin-bottom: 0 !important;
+}
+
+.get-quote-form>p>span {
+    color: black;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.get-quote-form>p>.form-link {
+    color: black;
+}
+
+@media only screen and (max-width:992px) {
+    .property-container {
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    .main-content-div {
+        width: 100%;
+    }
+
+    .get-quote-div {
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width:768px) {
+    .ant-carousel {
+        height: 300px;
+    }
+
+    .product-carousel-div {
+        height: 300px;
+    }
+
+    .product-carousel-slide {
+        height: 300px;
+    }
+
+    .house-details-div {
+        width: 100%;
+    }
+
+    .house-location-div {
+        display: none;
+    }
+
+    .house-address {
+        font-weight: normal;
+        font-size: 16px;
+    }
+
+    .property-details-div>div {
+        width: 49%;
+    }
+
+    .contact-btn-div-res {
+        display: flex;
+    }
+
+    .contact-btn-house {
+        display: none;
+    }
+
+    .feature-list {
+        width: 100%;
+        margin-bottom: 0;
+    }
+}

@@ -12,12 +12,12 @@ const Home = () => {
                 <Container className='hero-container'>
                     <div className='hero-div'>
                         <div className='text-div'>
-                            <h1>Elevate Your Stay,</h1>
-                            <h1>Elevate Your Status.</h1>
+                            <h1>Connecting You to Your Dream Home, Effortlessly.</h1>
                             <p>
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Dignissimos odio fuga voluptas
-                                dolores quia atque ullam possimus veritatis doloribus. Et saepe aspernatur odio aut
-                                obcaecati, provident quod dolorem accusantium exercitationem.
+                                Discover a seamless way to find your perfect property, whether for sale or rent.
+                                Our platform brings trusted real estate agents and motivated buyers together,
+                                making your property search simple, transparent, and efficient. Start exploring
+                                today and connect directly with agents who can turn your dreams into reality.
                             </p>
                         </div>
                         <div className='hero-img-div'>

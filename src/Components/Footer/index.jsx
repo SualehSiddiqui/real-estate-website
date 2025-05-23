@@ -52,9 +52,6 @@ const Footer = () => {
                                         <Link to={'/'} className="footer-links">About Us</Link>
                                     </li>
                                     <li>
-                                        <Link to={'/'} className="footer-links">Contact Us</Link>
-                                    </li>
-                                    <li>
                                         <Link to={'/'} className="footer-links">Privacy Policies</Link>
                                     </li>
                                     <li>

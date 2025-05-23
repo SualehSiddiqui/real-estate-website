@@ -10,18 +10,16 @@
     position: relative;
 }
 
-.choose-us-sec-img-div:before {
-    content: "";
+.choose-us-sec-img-div-2 {
     position: absolute;
     bottom: -20%;
     left: 25%;
     height: 50%;
     width: 50%;
-    background-image: url('../../Assets/ChooseUs/choose-us-2.png');
-    background-size: cover;
 }
 
-.choose-us-sec-img-div>img {
+.choose-us-sec-img-div>img,
+.choose-us-sec-img-div-2>img {
     width: 100%;
     height: 100%;
 }
