@@ -1,15 +1,16 @@
-.main-nav-div{
+.main-nav-div {
     z-index: 999;
 }
 
-.nav-not-hero{
+.nav-not-hero {
     border-bottom: 1px solid gray !important;
 }
 
 .contact-btn-nav {
-    padding: 5px 10px;
+    padding: 8px 15px;
     border-radius: 15px;
     background-color: var(--color-2);
+    text-decoration: none;
     color: white;
     border: none;
     outline: none;
@@ -22,5 +23,5 @@
 }
 
 .active-link {
-    color: black;
+    color: black !important;
 }

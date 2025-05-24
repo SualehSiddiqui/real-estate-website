@@ -1,0 +1,73 @@
+.new-properties-main-div {
+    width: 100%;
+    padding: 60px 0px;
+}
+
+.properties-div {
+    width: 100%;
+    height: 80vh;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.properties-table-main-div {
+    width: 100%;
+    height: 90%;
+}
+
+.button-search-div {
+    height: 100%;
+    height: 10%;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+    overflow: hidden;
+}
+
+.search-input {
+    width: 200px;
+    height: 38px;
+    border-radius: 4px;
+    padding: 5px 10px;
+}
+
+.new-property-form>div>input,
+.new-property-form>div>label,
+.new-property-form>div>textarea {
+    width: 100%;
+    height: 35px;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.new-property-form>div>label {
+    padding: 0;
+}
+
+.new-property-form>div>textarea {
+    height: 100px;
+}
+
+.property-feature>input {
+    width: 89% !important;
+    margin-right: 5px;
+}
+
+.property-feature>button {
+    width: 10% !important;
+}
+
+.property-feature>div>ul {
+    width: 50%;
+    margin: 10px 0px;
+}
+
+@media only screen and (max-width:768px) {
+    .property-feature>div>ul {
+        width: 100%;
+        margin: 10px 0px;
+    }
+}

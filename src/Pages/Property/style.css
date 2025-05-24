@@ -210,6 +210,11 @@
     padding: 10px;
 }
 
+.get-quote-form-2 {
+    box-shadow: none;
+    padding: 20px;
+}
+
 .get-quote-form>h3 {
     font-size: 20px;
     font-weight: 600;
@@ -261,6 +266,90 @@
     color: black;
 }
 
+.contact-property-div {
+    width: 100%;
+    padding: 60px 0px;
+    background-color: rgb(242 240 239);
+    margin: 20px 0px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.contact-property-div>h2 {
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.contact-form-div {
+    width: 70%;
+    height: 620px;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    background-color: white;
+    border-radius: 16px;
+    display: flex;
+    overflow: hidden;
+}
+
+.contact-form-div>div {
+    width: 50%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.contact-form-div>div>img {
+    width: 100%;
+    height: 100%;
+}
+
+.agent-details-div {
+    width: 100%;
+    padding: 20px;
+    margin-top: 100px;
+    border-top: 1px solid rgb(173, 172, 172);
+    border-bottom: 1px solid rgb(173, 172, 172);
+}
+
+.agent-details-div>div {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.agent-details-div>div>p {
+    width: 50%;
+    font-size: 14px;
+    color: var(--text-color);
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.agent-details-div>div>p>p {
+    width: 40%;
+    margin-bottom: 0;
+}
+
+.agent-detail {
+    width: 60% !important;
+    text-decoration: underline;
+    color: black;
+}
+
+@media only screen and (max-width:1200px) {
+    .contact-form-div {
+        width: 80%;
+    }
+}
+
+@media only screen and (max-width:992px) {
+    .contact-property-div {
+        display: none;
+    }
+}
+
 @media only screen and (max-width:992px) {
     .property-container {
         flex-direction: column;
@@ -273,6 +362,10 @@
 
     .get-quote-div {
         width: 100%;
+    }
+
+    .get-quote-form {
+        padding: 20px;
     }
 }
 
@@ -317,5 +410,35 @@
     .feature-list {
         width: 100%;
         margin-bottom: 0;
+    }
+
+    .agent-details-div>div {
+        flex-direction: column;
+    }
+
+    .agent-details-div>div>p {
+        width: 100%;
+    }
+
+    .agent-details-div>div>p>p {
+        width: 40%;
+    }
+
+    .agent-detail {
+        width: 60% !important;
+    }
+}
+
+@media only screen and (max-width:350px) {
+    .agent-details-div>div>p {
+        flex-direction: column;
+    }
+
+    .agent-details-div>div>p>p {
+        width: 100%;
+    }
+
+    .agent-detail {
+        width: 100% !important;
     }
 }

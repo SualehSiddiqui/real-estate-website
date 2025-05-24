@@ -1,0 +1,5 @@
+.table-head-row {
+    background-color: var(--color-2) !important;
+    height: 50px;
+    color: white !important;
+}

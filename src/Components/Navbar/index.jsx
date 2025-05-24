@@ -3,7 +3,8 @@ import "./style.css"
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { Badge } from 'antd';
 
 
 function NavbarComp({ withoutHero }) {
@@ -27,6 +28,15 @@ function NavbarComp({ withoutHero }) {
             title: 'About',
             link: '/about',
         },
+        {
+            title: 'Properties',
+            link: '/add-new-properties',
+        },
+        {
+            title: 'Messages',
+            link: '/messages',
+            badge: true
+        },
     ]
 
     return (
@@ -41,19 +51,50 @@ function NavbarComp({ withoutHero }) {
                         navbarScroll
                     >
                         {
-                            navLinks.map((navItem, key) => (
-                                <Nav.Link href={navItem.link} key={key} className={`mx-md-3 ${navItem.link === location.pathname ? 'active-link' : ''}`}>{navItem.title}</Nav.Link>
-                            ))
+                            navLinks.map((navItem, key) => {
+                                return navItem.badge ? (
+                                    <Nav.Link
+                                        href={navItem.link}
+                                        key={key}
+                                        className={`mx-md-3 ${navItem.link === location.pathname ? 'active-link' : ''}`}
+                                    >
+                                        <Badge count={99} overflowCount={10}>
+                                            <span
+                                                style={{
+                                                    padding: 'var(--bs-nav-link-padding-y) var(--bs-nav-link-padding-x)',
+                                                    fontSize: 'var(--bs-nav-link-font-size)',
+                                                    fontWeight: '600',
+                                                    color: 'var(--bs-nav-link-color)',
+                                                    textDecoration: 'none',
+                                                    background: '0 0',
+                                                    border: '0',
+                                                    transition: 'color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out',
+                                                }}
+                                            >
+                                                {navItem.title}
+                                            </span>
+                                        </Badge>
+                                    </Nav.Link>
+                                ) : (
+                                    <Nav.Link
+                                        href={navItem.link}
+                                        key={key}
+                                        className={`mx-md-3 ${navItem.link === location.pathname ? 'active-link' : ''}`}
+                                    >
+                                        {navItem.title}
+                                    </Nav.Link>
+                                )
+                            })
                         }
                     </Nav>
                     <Form>
-                        <button className='contact-btn-nav'>
+                        <Link to={'/login-as-agent'} className='contact-btn-nav'>
                             Login as Agent
-                        </button>
+                        </Link>
                     </Form>
                 </Navbar.Collapse>
             </Container>
-        </Navbar>
+        </Navbar >
     );
 }
 

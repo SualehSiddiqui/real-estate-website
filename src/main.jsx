@@ -6,7 +6,7 @@ import App from './App';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 //Pages
-import { Home, Buy, Rent, Property } from "./Pages";
+import { Home, Buy, Rent, Property, LoginAgent, SignupAgent, AddNewProperties } from "./Pages";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -15,6 +15,9 @@ const router = createBrowserRouter(
       <Route path='/buy' element={<Buy />} />
       <Route path='/rent' element={<Rent />} />
       <Route path='/property/:id' element={<Property />} />
+      <Route path='/login-as-agent' element={<LoginAgent />} />
+      <Route path='/signup-as-agent' element={<SignupAgent />} />
+      <Route path='/add-new-properties' element={<AddNewProperties />} />
     </Route>
   )
 )

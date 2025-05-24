@@ -14,6 +14,8 @@ import Img4 from "../../Assets/Product/img4.webp"
 import Img5 from "../../Assets/Product/img5.webp"
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Tooltip } from 'antd';
+import { chunkArray } from "../../Utils";
 
 const CustomPrevArrow = ({ onClick }) => (
     <div className="product-carousel-arrows left-arrow" onClick={onClick}>
@@ -39,14 +41,18 @@ const Property = () => {
     let formText = <>
         By proceeding, you consent to receive calls and texts at the number you provided, including
         marketing by autodialer and prerecorded and artificial voice, and email, from realtor.com
-        and <Link className="form-link" to={'#'}>Others</Link> about your inquiry and other home-related matters, but not as a condition of any purchase.
-        You also agree to our <Link className="form-link" to={'#'}>Terms of Use</Link> , and to our <Link className="form-link" to={'#'}>Privacy Policy</Link>
-        regarding the information relating to you. Msg/data rates may apply. This consent applies even if you are on a corporate, state or national Do Not Call list.
+        and <Tooltip
+            title={`Person who may contact you include real state professionals suc as agents and brokers, mortgage professionals such as lenders mortgage
+                 brokers, abcd.com and it's affiliates insurers or their agents, thosewho may be assisting any of the foregoing`}
+        ><span className="form-link">others</span></Tooltip> about your inquiry and other home-related matters,
+        but not as a condition of any purchase. You also agree to our <Link className="form-link" to={'#'}>Terms of Use</Link> , and to our
+        <Link className="form-link" to={'#'}>Privacy Policy</Link> regarding the information relating to you. Msg/data rates may apply. This
+        consent applies even if you are on a corporate, state or national Do Not Call list.
     </>
     let plainFormText = `By proceeding, you consent to receive calls and texts at the number you provided, including
         marketing by autodialer and prerecorded and artificial voice, and email, from realtor.com
-        and <Link className="form-link" to={'#'}>Others</Link> about your inquiry and other home-related matters, but not as a condition of any purchase.
-        You also agree to our <Link className="form-link" to={'#'}>Terms of Use</Link> , and to our <Link className="form-link" to={'#'}>Privacy Policy</Link>
+        and others about your inquiry and other home-related matters, but not as a condition of any purchase.
+        You also agree to our Terms of Use, and to our Privacy Policy
         regarding the information relating to you. Msg/data rates may apply. This consent applies even if you are on a corporate, state or national Do Not Call list.`
     const features = [
         {
@@ -203,19 +209,13 @@ const Property = () => {
         },
     ];
 
-
-    const chunkArray = (arr, size) => {
-        const chunks = [];
-        for (let i = 0; i < arr.length; i += size) {
-            chunks.push(arr.slice(i, i + size));
-        }
-        return chunks;
-    };
-
     return (
         <>
             <Navbar withoutHero={true} />
             <div className="main-property-div">
+                <div className="contact-btn-div-res">
+                    <button className="contact-btn-house-res">Contact Agent</button>
+                </div>
                 <Container className="property-container">
                     <div className="main-content-div">
                         <div className="main-img-div">
@@ -285,7 +285,19 @@ const Property = () => {
                                     9104 Janabyrd Cv, Austin, TX 78749
                                 </h2>
                             </div>
-                            <div className="house-location-div"></div>
+                            <div className="house-location-div">
+                                <iframe
+                                    title="House Location"
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3620.276782676497!2d67.02406541491316!3d24.945867984023!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3eb33fb9c3e1b913%3A0xe13f66f906624934!2sBlock%201%2C%20Nazimabad%2C%20Karachi!5e0!3m2!1sen!2s!4v1684981225694!5m2!1sen!2s"
+                                    width="100%"
+                                    height="100%"
+                                    style={{ border: 0 }}
+                                    allowFullScreen=""
+                                    loading="lazy"
+                                    referrerPolicy="no-referrer-when-downgrade"
+                                ></iframe>
+                            </div>
+
                         </div>
                         <hr />
                         <h2 className="house-hd d-flex align-items-center">
@@ -434,8 +446,68 @@ const Property = () => {
                             </p>
                         </form>
                     </div>
-                    <div className="contact-btn-div-res">
-                        <button className="contact-btn-house-res">Contact Agent</button>
+                </Container>
+                <Container>
+                    <div className="contact-property-div">
+                        <h2>Learn more about this property</h2>
+                        <div className="contact-form-div">
+                            <div>
+                                <form className="get-quote-form get-quote-form-2">
+                                    <h3>More about this property</h3>
+                                    <label htmlFor="full-name">Full Name*</label>
+                                    <input type="text" id="full-name" placeholder="Enter your name" />
+
+                                    <label htmlFor="email">Email*</label>
+                                    <input type="email" id="email" placeholder="Enter your email" />
+
+                                    <label htmlFor="phone">Phone</label>
+                                    <input type="text" id="phone" placeholder="Enter your phone" />
+
+                                    <label htmlFor="date">Desired move-in Date*</label>
+                                    <input type="date" id="date" />
+
+                                    <label htmlFor="message">Message</label>
+                                    <textarea name="message" id="message" placeholder="Enter your Message"></textarea>
+
+                                    <button type="submit">Send</button>
+                                    <p>
+                                        {formText}
+                                    </p>
+                                </form>
+                            </div>
+                            <div>
+                                <img src={Img1} alt="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="agent-details-div">
+                        <h3 className="text-center">Broker Details</h3>
+                        <div>
+                            <p>
+                                <p>
+                                    Broker Name:
+                                </p>
+                                <p className="agent-detail">Sualeh Siddiqui</p>
+                            </p>
+                            <p>
+                                <p>
+                                    Broker Location:
+                                </p>
+                                <p className="agent-detail">AUSTIN, TX</p>
+                            </p>
+                            <p>
+                                <p>
+                                    Broker Phone:
+                                </p>
+                                <p className="agent-detail">(918) 968-1145</p>
+                            </p>
+                            <p>
+                                <p>
+                                    Broker Email:
+                                </p>
+                                <p className="agent-detail">SualehSiddiqui@gmail.com</p>
+                            </p>
+                        </div>
                     </div>
                 </Container>
             </div>

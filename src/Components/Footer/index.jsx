@@ -12,10 +12,10 @@ const Footer = () => {
                     <div className="footer-sec-1">
                         <h1>RentBro.</h1>
                         <p>
-                            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Culpa itaque,
-                            aliquam provident pariatur blanditiis ipsa aspernatur illo aliquid eaque
-                            earum ratione dolor eum amet, rem accusantium, excepturi eveniet iure
-                            animi!
+                            Discover a seamless way to find your perfect property, whether for sale or rent.
+                            Our platform brings trusted real estate agents and motivated buyers together,
+                            making your property search simple, transparent, and efficient. Start exploring
+                            today and connect directly with agents who can turn your dreams into reality.
                         </p>
                         <div className="d-flex mt-5">
                             <Link className="social-icons">
@@ -73,7 +73,7 @@ const Footer = () => {
                         </div>
                         <div className="sub-sec-2">
                             <h3>News Letter</h3>
-                            <input type="text" placeholder="enter you email" />
+                            <input type="text" placeholder="Enter you email" />
                             <button>Send</button>
                         </div>
                     </div>
