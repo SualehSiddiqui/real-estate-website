@@ -12,10 +12,11 @@ import Img2 from "../../Assets/Product/img2.webp"
 import Img3 from "../../Assets/Product/img3.webp"
 import Img4 from "../../Assets/Product/img4.webp"
 import Img5 from "../../Assets/Product/img5.webp"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Tooltip } from 'antd';
 import { chunkArray } from "../../Utils";
+import { useDispatch } from "react-redux";
 
 const CustomPrevArrow = ({ onClick }) => (
     <div className="product-carousel-arrows left-arrow" onClick={onClick}>
@@ -30,14 +31,50 @@ const CustomNextArrow = ({ onClick }) => (
 );
 
 const Property = () => {
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        const checkUser = async () => {
+            const user = await authService.getCurrentUser();
+            if (user) {
+                dispatch(login(user));
+            } else {
+                dispatch(logout());
+            }
+        };
+        checkUser();
+    }, [dispatch]);
+
+    const checkLoginStatus = () => {
+        const loginTimestamp = Cookie.getItem('loginTimestamp');
+
+        if (loginTimestamp) {
+            const currentTime = Date.now();
+            const timeElapsed = currentTime - loginTimestamp;
+            const twentyFourHoursInMs = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+            if (timeElapsed > twentyFourHoursInMs) {
+                // If more than 24 hours have passed, log out the user
+                dispatch(logout);
+                Cookie.removeItem('user');
+                Cookie.removeItem('token');
+                Cookie.removeItem('timestamp');
+            }
+        };
+    };
+
+    useEffect(() => {
+        checkLoginStatus()
+    }, []);
+
     const [seeMore, setSeeMore] = useState(false);
     const [seeMoreFeatures, setSeeMoreFeatures] = useState(false);
     const [seeMoreForm, setSeeMoreForm] = useState(false);
     let content = ` Wonderful area of SW Austin! Close to everything! Shopping, excellent schools nearby, parks,
-                            trails, restaurants, major roads nearby, about 20 minutes to downtown area and more! Airport
-                            not far! Great floorplan! Home office/study downstairs, 3 bedrooms and 2 baths upstairs, 2
-                            car garage, quiet culdesac, open kitchen/great room concept, high ceilings, lots of natural
-                            light, large backyard/patio and more!`
+    trails, restaurants, major roads nearby, about 20 minutes to downtown area and more! Airport 
+    not far! Great floorplan! Home office/study downstairs, 3 bedrooms and 2 baths upstairs, 2 
+    car garage, quiet culdesac, open kitchen/great room concept, high ceilings, lots of natural 
+    light, large backyard/patio and more!`
     let formText = <>
         By proceeding, you consent to receive calls and texts at the number you provided, including
         marketing by autodialer and prerecorded and artificial voice, and email, from realtor.com
@@ -50,10 +87,10 @@ const Property = () => {
         consent applies even if you are on a corporate, state or national Do Not Call list.
     </>
     let plainFormText = `By proceeding, you consent to receive calls and texts at the number you provided, including
-        marketing by autodialer and prerecorded and artificial voice, and email, from realtor.com
-        and others about your inquiry and other home-related matters, but not as a condition of any purchase.
-        You also agree to our Terms of Use, and to our Privacy Policy
-        regarding the information relating to you. Msg/data rates may apply. This consent applies even if you are on a corporate, state or national Do Not Call list.`
+    marketing by autodialer and prerecorded and artificial voice, and email, from realtor.com 
+    and others about your inquiry and other home-related matters, but not as a condition of any purchase. 
+    You also agree to our Terms of Use, and to our Privacy Policy 
+    regarding the information relating to you. Msg/data rates may apply. This consent applies even if you are on a corporate, state or national Do Not Call list.`
     const features = [
         {
             title: 'Bedrooms',

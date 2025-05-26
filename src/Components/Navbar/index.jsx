@@ -3,46 +3,79 @@ import "./style.css"
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Badge } from 'antd';
-
+import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import Cookies from "js-cookies";
+import { logout } from '../../Store/authSlice';
+import authService from '../../Services/auth';
 
 function NavbarComp({ withoutHero }) {
-
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     const location = useLocation();
+    const [login, setLogin] = useState(false);
 
     const navLinks = [
         {
             title: 'Home',
             link: '/',
+            show: true
         },
         {
             title: 'Buy',
             link: '/buy',
+            show: true
         },
         {
             title: 'Rent',
             link: '/rent',
+            show: true
         },
         {
             title: 'About',
             link: '/about',
+            show: true
         },
         {
             title: 'Properties',
             link: '/add-new-properties',
+            show: login
         },
         {
             title: 'Messages',
-            link: '/messages',
-            badge: true
+            link: '/message',
+            badge: true,
+            show: login
         },
-    ]
+    ];
+
+    const checkUser = async () => {
+        const user = await authService.getCurrentUser();
+        if (user) {
+            setLogin(true)
+        } else {
+            setLogin(false)
+        }
+    };
+
+    useEffect(() => {
+        checkUser();
+    }, [dispatch])
+
+    const logoutUser = () => {
+        Cookies.removeItem('user');
+        Cookies.removeItem('timestamp');
+        Cookies.removeItem('token');
+        dispatch(logout);
+        navigate('/')
+    }
 
     return (
         <Navbar expand="md" className={`py-3 main-nav-div ${withoutHero ? 'nav-not-hero' : ''}`}>
             <Container>
-                <Navbar.Brand href="#">Rent Bro</Navbar.Brand>
+                <Navbar.Brand href="/">Rent Bro</Navbar.Brand>
                 <Navbar.Toggle aria-controls="navbarScroll" />
                 <Navbar.Collapse id="navbarScroll">
                     <Nav
@@ -52,7 +85,7 @@ function NavbarComp({ withoutHero }) {
                     >
                         {
                             navLinks.map((navItem, key) => {
-                                return navItem.badge ? (
+                                return navItem.show && (navItem.badge ? (
                                     <Nav.Link
                                         href={navItem.link}
                                         key={key}
@@ -83,13 +116,13 @@ function NavbarComp({ withoutHero }) {
                                     >
                                         {navItem.title}
                                     </Nav.Link>
-                                )
+                                ))
                             })
                         }
                     </Nav>
                     <Form>
-                        <Link to={'/login-as-agent'} className='contact-btn-nav'>
-                            Login as Agent
+                        <Link to={'/login-as-agent'} onClick={login ? logoutUser : ''} className='contact-btn-nav'>
+                            {login ? 'Log out' : 'Login as Agent'}
                         </Link>
                     </Form>
                 </Navbar.Collapse>

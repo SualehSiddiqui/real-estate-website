@@ -5,6 +5,7 @@ import Property from "./Property";
 import LoginAgent from "./LoginAgent";
 import SignupAgent from "./SignupAgent";
 import AddNewProperties from "./AddNewProperties";
+import Message from "./Message";
 
 
 export {
@@ -15,4 +16,5 @@ export {
     LoginAgent,
     SignupAgent,
     AddNewProperties,
+    Message,
 }

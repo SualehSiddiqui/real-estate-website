@@ -1,15 +1,27 @@
 import "./style.css";
 import { Navbar, Footer, Table } from "../../Components";
 import { Button, Container } from "react-bootstrap";
-import { useState } from "react";
-import { Space } from "antd";
+import { useEffect, useState } from "react";
+import { Image, Space } from "antd";
 import { chunkArray } from "../../Utils";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const AddNewProperties = () => {
+    const user = useSelector(state => state.auth.user);
+    const navigate = useNavigate();
+    useEffect(() => {
+        console.log('user', user);
+        if (!user) {
+            navigate("/");
+        }
+    }, [user, navigate]);
+
     const [propertyDiv, setPropertyDiv] = useState(false)
-    const [totalAreas, setTotalAreas] = useState(0);
+    const [totalProperties, setTotalProperties] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const [limit, setLimit] = useState(25);
+    const [files, setFiles] = useState([]);
 
     const [property, setProperty] = useState({
         name: '',
@@ -169,6 +181,24 @@ const AddNewProperties = () => {
         });
     };
 
+    const handleFileChange = (e) => {
+        const fileList = e.target.files;
+        const validTypes = ['jpeg', 'jpg', 'png'];
+        const validFiles = [];
+
+        for (const file of fileList) {
+            const fileType = file.type.split('/')[1];
+            if (validTypes.includes(fileType)) {
+                validFiles.push(file);
+            } else {
+                alert('Image type should be png, jpeg, or jpg');
+                return; // Exit early if an invalid file is found
+            }
+        }
+
+        setFiles(validFiles);
+    };
+
     return (
         <>
             <Navbar withoutHero={true} />
@@ -179,8 +209,8 @@ const AddNewProperties = () => {
                             propertyDiv ?
                                 <>
                                     <h3>Add New Property</h3>
-                                    <form className="new-property-form row">
-                                        <div className="sm-col-12 col-6 mt-1">
+                                    <div className="new-property-form row">
+                                        <div className="col-12 col-md-6 mt-1">
                                             <label htmlFor="name">
                                                 Title:
                                             </label>
@@ -193,7 +223,7 @@ const AddNewProperties = () => {
                                                 onChange={e => setProperty({ ...property, name: e.target.value })}
                                             />
                                         </div>
-                                        <div className="sm-col-12 col-6 mt-1">
+                                        <div className="col-12 col-md-6 mt-1">
                                             <label htmlFor="price">
                                                 Price:
                                             </label>
@@ -216,7 +246,7 @@ const AddNewProperties = () => {
                                                 onChange={e => setProperty({ ...property, address: e.target.value })}
                                             />
                                         </div>
-                                        <div className="sm-col-6 col-3 mt-1">
+                                        <div className="col-6 col-md-3 mt-1">
                                             <label htmlFor="bed">
                                                 Bed:
                                             </label>
@@ -228,7 +258,7 @@ const AddNewProperties = () => {
                                                 onChange={e => setProperty({ ...property, bed: e.target.value })}
                                             />
                                         </div>
-                                        <div className="sm-col-6 col-3 mt-1">
+                                        <div className="col-6 col-md-3 mt-1">
                                             <label htmlFor="bath">
                                                 Bath:
                                             </label>
@@ -240,7 +270,7 @@ const AddNewProperties = () => {
                                                 onChange={e => setProperty({ ...property, bath: e.target.value })}
                                             />
                                         </div>
-                                        <div className="sm-col-6 col-3 mt-1">
+                                        <div className="col-6 col-md-3 mt-1">
                                             <label htmlFor="houseSqft">
                                                 House sqft:
                                             </label>
@@ -252,7 +282,7 @@ const AddNewProperties = () => {
                                                 onChange={e => setProperty({ ...property, houseSqft: e.target.value })}
                                             />
                                         </div>
-                                        <div className="sm-col-6 col-3 mt-1">
+                                        <div className="col-6 col-md-3 mt-1">
                                             <label htmlFor="lotSqft">
                                                 Lot sqft:
                                             </label>
@@ -266,7 +296,7 @@ const AddNewProperties = () => {
                                         </div>
                                         <hr className="mt-4 mb-4" />
                                         <h5>Property Details</h5>
-                                        <div className="sm-col-6 col-4 mt-1">
+                                        <div className="col-12 col-md-6 col-lg-4 mt-1">
                                             <label htmlFor="propertyType">
                                                 Property Type:
                                             </label>
@@ -278,7 +308,7 @@ const AddNewProperties = () => {
                                                 onChange={e => setPropertyDetails({ ...property, type: e.target.value })}
                                             />
                                         </div>
-                                        <div className="sm-col-6 col-4 mt-1">
+                                        <div className="col-12 col-md-6 col-lg-4 mt-1">
                                             <label htmlFor="yearBuilt">
                                                 Year Built:
                                             </label>
@@ -290,7 +320,7 @@ const AddNewProperties = () => {
                                                 onChange={e => setPropertyDetails({ ...property, yearBuilt: e.target.value })}
                                             />
                                         </div>
-                                        <div className="sm-col-6 col-4 mt-1">
+                                        <div className="col-12 col-md-6 col-lg-4 mt-1">
                                             <label htmlFor="availablity">
                                                 Availablity:
                                             </label>
@@ -971,6 +1001,46 @@ const AddNewProperties = () => {
                                                 }
                                             </div>
                                         </div>
+                                        <div className="col-12 mt-1">
+                                            <label htmlFor="propertyType">
+                                                Images:
+                                            </label>
+                                            <input
+                                                type="file"
+                                                name="file"
+                                                onChange={handleFileChange}
+                                                style={{ display: 'hide' }}
+                                                multiple
+                                            />
+                                        </div>
+                                        <div className="upload-img-div">
+                                            {/* {filesEdit.map((v, i) => {
+                                                return (
+                                                    <div key={i}>
+                                                        <Image
+                                                            src={v.url}
+                                                            alt={v.public_id}
+                                                            width={'170px'}
+                                                            height={'200px'}
+                                                        />
+                                                        <br />
+                                                        <Button variant="outline-danger" onClick={e => fileDelete(v, currentEditItem)}>Remove</Button>
+                                                    </div>
+                                                )
+                                            })
+                                            } */}
+                                            {files && files.map((v, i) => (
+                                                <div key={i}>
+                                                    <Image
+                                                        src={URL.createObjectURL(v)}
+                                                        alt={'img'}
+                                                        width={'150px'}
+                                                        height={'100px'}
+                                                    />
+                                                </div>
+                                            ))}
+
+                                        </div>
                                         <div className="d-flex justify-content-around">
                                             <Button
                                                 variant="outline-danger"
@@ -987,26 +1057,41 @@ const AddNewProperties = () => {
                                                 Add Property
                                             </Button>
                                         </div>
-                                    </form>
+                                    </div>
                                 </>
                                 :
                                 <>
                                     <div className="button-search-div">
                                         <Space>
                                             <Button variant="outline-dark" className="all-button">All Bills</Button>
+                                            <div className="search-div-property-res">
+                                                <input
+                                                    type='text'
+                                                    placeholder={"Search with address"}
+                                                    className="search-input me-1"
+                                                />
+                                                <Button
+                                                    variant="outline-secondary"
+                                                    className="search-button"
+                                                >
+                                                    Search
+                                                </Button>
+                                            </div>
                                         </Space>
                                         <Space>
-                                            <input
-                                                type='text'
-                                                placeholder={"Search with address"}
-                                                className="search-input"
-                                            />
-                                            <Button
-                                                variant="outline-secondary"
-                                                className="search-button"
-                                            >
-                                                Search
-                                            </Button>
+                                            <div className="search-div-property">
+                                                <input
+                                                    type='text'
+                                                    placeholder={"Search with address"}
+                                                    className="search-input me-1"
+                                                />
+                                                <Button
+                                                    variant="outline-secondary"
+                                                    className="search-button"
+                                                >
+                                                    Search
+                                                </Button>
+                                            </div>
                                             <Button
                                                 variant="outline-success"
                                                 className="add-button"
@@ -1022,7 +1107,7 @@ const AddNewProperties = () => {
                                             // data={rows}
                                             actions={actions}
                                             pagination={true}
-                                            totalQuantity={totalAreas}
+                                            totalQuantity={totalProperties}
                                             limit={limit}
                                             setLimit={setLimit}
                                             currentPage={currentPage}

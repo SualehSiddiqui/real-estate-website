@@ -1,0 +1,8 @@
+.user-email {
+    text-decoration: none;
+    color: black;
+}
+
+.user-email:hover {
+    text-decoration: underline;
+}

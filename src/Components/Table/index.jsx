@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { formatDate, sortData, getNestedValue, renderPagination } from '../../Utils/index.jsx';
 import BootButton from 'react-bootstrap/Button';
 import './style.css';
@@ -52,7 +52,7 @@ function Table({
                 <td colSpan={columns.length + actions.length}>No Record Found</td>
             </tr> :
             data?.map((row, index) => (
-                <tr key={index} onClick={e => handleRowClick ? handleRowClick(row, index) : {}}>
+                <tr key={index}>
                     {selectable && (
                         <td>
                             <input
@@ -68,8 +68,12 @@ function Table({
                             value = formatDate(value, 'D/M/YY');
                         }
                         return (
-                            <td key={column.key} style={column.style}>
-                                {value}
+                            <td key={column.key} style={column.style} onClick={e => handleRowClick ? handleRowClick(row, index) : {}}>
+                                {
+                                    column.limit && value.length > column.limit ?
+                                        `${value.slice(0, column.limit)}...`
+                                        : value
+                                }
                             </td>
                         )
                     })}
@@ -157,7 +161,7 @@ function Table({
                     Total Record {totalQuantity}
                     <br />
                     <div className="d-flex">
-                        Bills Per Page:
+                        Lines Per Page:
                         <Form.Select
                             size="sm"
                             className="mb-1"
