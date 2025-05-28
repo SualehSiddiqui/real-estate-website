@@ -1,45 +1,64 @@
 import "./style.css";
-import { Navbar, Footer, Table } from "../../Components";
+import { Navbar, Footer, Table, CustomAutoComplete } from "../../Components";
 import { Button, Container } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { Image, Space } from "antd";
-import { chunkArray } from "../../Utils";
+import { chunkArray, UsCities } from "../../Utils";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import UsStates from 'states-us';
+import propertyService from "../../Services/property";
+import { show, hide } from "../../Store/spinnerSlice";
+import Swal from "sweetalert2";
 
 const AddNewProperties = () => {
-    const user = useSelector(state => state.auth.user);
+    const dispatch = useDispatch();
+    const { status, isChecking } = useSelector(state => state.auth);
     const navigate = useNavigate();
     useEffect(() => {
-        console.log('user', user);
-        if (!user) {
-            navigate("/");
+        if (!isChecking) {
+            if (status === false) {
+                navigate("/");
+            }
         }
-    }, [user, navigate]);
+    }, [isChecking, status, navigate]);
 
-    const [propertyDiv, setPropertyDiv] = useState(false)
+
+    const [searchValue, setSearchValue] = useState("");
+    const [propertyDiv, setPropertyDiv] = useState("")
     const [totalProperties, setTotalProperties] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const [limit, setLimit] = useState(25);
     const [files, setFiles] = useState([]);
+    const [filesEdit, setFilesEdit] = useState([]);
+    const [states, setStates] = useState([]);
+    const [currentEditProperty, setCurrentEditProperty] = useState('');
+    const [rows, setRows] = useState([]);
+
+    useEffect(() => {
+        setStates(UsStates.map(x => x.name.toLowerCase()))
+    }, [])
 
     const [property, setProperty] = useState({
         name: '',
         price: '',
         address: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        location: '',
         bed: '',
         bath: '',
+        availableFor: '',
         houseSqft: '',
         lotSqft: '',
     });
-
     const [propertyDetails, setPropertyDetails] = useState({
         type: '',
         yearBuilt: '',
         availablity: '',
         description: '',
     });
-
     const [features, setFeatures] = useState({
         bathrooms: '',
         bedrooms: '',
@@ -83,8 +102,13 @@ const AddNewProperties = () => {
             name: '',
             price: '',
             address: '',
+            city: '',
+            state: '',
+            zipCode: '',
+            location: '',
             bed: '',
             bath: '',
+            availableFor: '',
             houseSqft: '',
             lotSqft: '',
         });
@@ -130,38 +154,40 @@ const AddNewProperties = () => {
             utilities: [],
             homeFeatures: [],
         });
+        setPropertyDiv('');
+
     };
 
     const columns = [
         {
             name: "Property Name",
             style: { width: "30%" },
-            key: 'name',
+            key: 'title',
         },
         {
             name: "Property Address",
             style: { width: "40%" },
-            key: 'name',
+            key: 'address',
         },
     ];
     const actions = [
         {
             name: "View Add",
-            handler: (row) => editArea(row),
+            handler: (row) => { },
             className: "bill-buttons",
             variant: 'outline-secondary',
             style: { width: '10%' }
         },
         {
             name: "Edit",
-            handler: (row) => editArea(row),
+            handler: (row) => editProperty(row),
             className: "bill-buttons",
             variant: 'outline-success',
             style: { width: '10%' }
         },
         {
             name: "Delete",
-            handler: (row) => deleteArea(row._id),
+            handler: (row) => handleDelete(row._id),
             className: "bill-buttons",
             variant: 'outline-danger',
             style: { width: '10%' }
@@ -179,6 +205,153 @@ const AddNewProperties = () => {
                 [featureCategory]: updatedArray,
             };
         });
+    };
+
+    const getProperty = async (pageNo, limit, status) => {
+        dispatch(show());
+        try {
+            const response = await propertyService.getAllProperty(pageNo, limit, status);
+            setTotalProperties(response.totalProperties);
+            setRows(response.properties);
+        } catch (error) {
+            console.log('Error updating user:', error.message);
+        } finally {
+            dispatch(hide());
+        }
+    };
+
+    useEffect(() => {
+        getProperty(currentPage, limit, 'all');
+    }, [currentPage, limit])
+
+    const searchProperty = async () => {
+        dispatch(show());
+        if (searchValue === "") {
+            getProperty(currentPage, limit, 'all')
+        } else {
+            try {
+                const response = await propertyService.searchProperty(searchValue);
+                setRows(response.data);
+            } catch (error) {
+                console.log('Error updating user:', error.message);
+                Swal.fire({
+                    icon: "error",
+                    title: "Error updating user!",
+                    text: error.message,
+                });
+            } finally {
+                setSearchValue('');
+                dispatch(hide());
+            }
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        dispatch(show())
+
+        const propertyObj = {
+            title: property.name,
+            price: property.price,
+            address: property.address,
+            bed: property.bed,
+            bath: property.bath,
+            houseSqft: property.houseSqft,
+            lotSqft: property.lotSqft,
+            state: property.state,
+            city: property.city,
+            zipCode: property.zipCode,
+            location: property.location,
+            availableFor: property.availableFor,
+            details: {
+                ...propertyDetails
+            },
+            features: {
+                ...propertFeatures
+            },
+            imgUrl: [],
+        };
+
+        try {
+            const data = await propertyService.createProperty(propertyObj);
+            await propertyService.uploadFiles(data.property._id, files);
+
+            reset();
+            setPropertyDiv("");
+            if (status === "show") getProperty(currentPage, limit, true);
+            else if (status === "hide") getProperty(currentPage, limit, false);
+            else getProperty(currentPage, limit, "all");
+
+            Swal.fire({
+                icon: "success",
+                title: "Added..",
+                text: "Property Has Been Added",
+            });
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: error.message,
+            });
+        } finally {
+            dispatch(hide())
+        }
+    };
+
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+        dispatch(show())
+
+        for (let i = 0; i < filesEdit.length; i++) {
+            delete filesEdit[i]._id;
+        }
+
+        const propertyObj = {
+            title: property.name,
+            price: property.price,
+            address: property.address,
+            bed: property.bed,
+            bath: property.bath,
+            houseSqft: property.houseSqft,
+            lotSqft: property.lotSqft,
+            state: property.state,
+            city: property.city,
+            zipCode: property.zipCode,
+            location: property.location,
+            availableFor: property.availableFor,
+            details: {
+                ...propertyDetails
+            },
+            features: {
+                ...propertFeatures
+            },
+            imgUrl: [],
+        };
+
+        try {
+            const data = await propertyService.updateProperty(currentEditProperty, propertyObj);
+            await propertyService.uploadFiles(data.property._id, filesEdit);
+
+            reset();
+            setPropertyDiv("");
+            if (status === "show") getProperty(currentPage, limit, true);
+            else if (status === "hide") getProperty(currentPage, limit, false);
+            else getProperty(currentPage, limit, "all");
+
+            Swal.fire({
+                icon: "success",
+                title: "Updated..",
+                text: "Property Has Been Updated",
+            });
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: error.message,
+            });
+        } finally {
+            dispatch(hide())
+        }
     };
 
     const handleFileChange = (e) => {
@@ -199,6 +372,133 @@ const AddNewProperties = () => {
         setFiles(validFiles);
     };
 
+    const editProperty = (data) => {
+        setPropertyDiv('edit');
+        setProperty({
+            name: data.title,
+            price: data.price,
+            address: data.address,
+            city: data.city,
+            state: data.state,
+            zipCode: data.zipCode,
+            location: data.location,
+            bed: data.bed,
+            bath: data.bath,
+            houseSqft: data.houseSqft,
+            lotSqft: data.lotSqft,
+        });
+        setPropertyDetails({
+            type: data.details.type,
+            yearBuilt: data.details.yearBuilt,
+            availablity: data.details.availablity,
+            description: data.details.description,
+        });
+        setPropertyFeatures({
+            bedrooms: data.features.bedrooms,
+            bathrooms: data.features.bathrooms,
+            appliances: data.features.appliances,
+            interiorFeatures: data.features.interiorFeatures,
+            heatingCooling: data.features.heatingCooling,
+            exterior: data.features.exterior,
+            garage: data.features.garage,
+            landInfo: data.features.landInfo,
+            homeownersAssociation: data.features.homeownersAssociation,
+            schoolInfo: data.features.schoolInfo,
+            rentalInfo: data.features.rentalInfo,
+            amenities: data.features.amenities,
+            otherInfo: data.features.otherInfo,
+            buildingAndConstruction: data.features.buildingAndConstruction,
+            utilities: data.features.utilities,
+            homeFeatures: data.features.homeFeatures,
+        });
+        setFilesEdit(data.imgUrl);
+        setCurrentEditProperty(data._id);
+    };
+
+    const fileDelete = async (obj, id) => {
+        dispatch(show());
+
+        const { public_id } = obj;
+        const encodedPublicId = encodeURIComponent(public_id);
+        try {
+            await propertyService.deleteFiles(id, encodedPublicId);
+
+            const updatedFiles = filesEdit.filter(file => file.public_id !== public_id);
+            setFilesEdit(updatedFiles);
+
+            if (status === "show") getProperty(currentPage, limit, true);
+            else if (status === "hide") getProperty(currentPage, limit, false);
+            else getProperty(currentPage, limit, "all");
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Deleted..',
+                text: 'Image Has Been Deleted'
+            })
+
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: error.message,
+            });
+        } finally {
+            dispatch(hide())
+        }
+    };
+
+    const handleDelete = (id) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                dispatch(show())
+                try {
+                    const response = await propertyService.deleteProperty(id);
+
+                    if (status === "show") getProperty(currentPage, limit, true);
+                    else if (status === "hide") getProperty(currentPage, limit, false);
+                    else getProperty(currentPage, limit, "all");
+
+                    Swal.fire({
+                        title: "Deleted!",
+                        text: response.message,
+                        icon: "success"
+                    });
+                } catch (error) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: error.message,
+                    });
+                } finally {
+                    dispatch(hide())
+                }
+            }
+        });
+
+    };
+
+    const onChange = (name, city) => {
+        if (city) {
+            setProperty({
+                ...property,
+                city: name,
+            })
+        } else {
+            setProperty({
+                ...property,
+                state: name,
+            })
+        }
+    };
+
     return (
         <>
             <Navbar withoutHero={true} />
@@ -206,13 +506,13 @@ const AddNewProperties = () => {
                 <Container>
                     <div className="properties-div">
                         {
-                            propertyDiv ?
+                            propertyDiv === 'add' || propertyDiv === 'edit' ?
                                 <>
                                     <h3>Add New Property</h3>
-                                    <div className="new-property-form row">
+                                    <form className="new-property-form row" onSubmit={propertyDiv === 'edit' ? handleEditSubmit : handleSubmit}>
                                         <div className="col-12 col-md-6 mt-1">
                                             <label htmlFor="name">
-                                                Title:
+                                                Title<span className="text-danger">*</span>:
                                             </label>
                                             <input
                                                 type="text"
@@ -221,126 +521,184 @@ const AddNewProperties = () => {
                                                 placeholder="Enter Title"
                                                 value={property.name}
                                                 onChange={e => setProperty({ ...property, name: e.target.value })}
+                                                required
                                             />
                                         </div>
                                         <div className="col-12 col-md-6 mt-1">
                                             <label htmlFor="price">
-                                                Price:
+                                                Price / Rent Per MO<span className="text-danger">*</span>:
                                             </label>
                                             <input
-                                                type="number"
+                                                type="text"
                                                 id="price"
                                                 placeholder="Enter Price"
                                                 value={property.price}
                                                 onChange={e => setProperty({ ...property, price: e.target.value })}
+                                                required
                                             />
                                         </div>
                                         <div className="col-12 mt-1">
                                             <label htmlFor="address">
-                                                Address:
+                                                Address<span className="text-danger">*</span>:
                                             </label>
                                             <textarea
                                                 id="address"
                                                 placeholder="Enter Address"
                                                 value={property.address}
                                                 onChange={e => setProperty({ ...property, address: e.target.value })}
+                                                required
                                             />
                                         </div>
                                         <div className="col-6 col-md-3 mt-1">
                                             <label htmlFor="bed">
-                                                Bed:
+                                                Bed<span className="text-danger">*</span>:
                                             </label>
                                             <input
-                                                type="number"
+                                                type="text"
                                                 id="bed"
                                                 placeholder="Enter Bed"
                                                 value={property.bed}
                                                 onChange={e => setProperty({ ...property, bed: e.target.value })}
+                                                required
                                             />
                                         </div>
                                         <div className="col-6 col-md-3 mt-1">
                                             <label htmlFor="bath">
-                                                Bath:
+                                                Bath<span className="text-danger">*</span>:
                                             </label>
                                             <input
-                                                type="number"
+                                                type="text"
                                                 id="bath"
                                                 placeholder="Enter Bath"
                                                 value={property.bath}
                                                 onChange={e => setProperty({ ...property, bath: e.target.value })}
+                                                required
                                             />
                                         </div>
                                         <div className="col-6 col-md-3 mt-1">
                                             <label htmlFor="houseSqft">
-                                                House sqft:
+                                                House sqft<span className="text-danger">*</span>:
                                             </label>
                                             <input
-                                                type="number"
+                                                type="text"
                                                 id="houseSqft"
                                                 placeholder="Enter House sqft"
                                                 value={property.houseSqft}
                                                 onChange={e => setProperty({ ...property, houseSqft: e.target.value })}
+                                                required
                                             />
                                         </div>
                                         <div className="col-6 col-md-3 mt-1">
                                             <label htmlFor="lotSqft">
-                                                Lot sqft:
+                                                Lot sqft<span className="text-danger">*</span>:
                                             </label>
                                             <input
-                                                type="number"
+                                                type="text"
                                                 id="lotSqft"
                                                 placeholder="Enter Lot sqft"
                                                 value={property.lotSqft}
                                                 onChange={e => setProperty({ ...property, lotSqft: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="col-12 col-md-6 mt-1">
+                                            <label htmlFor="lotSqft">
+                                                State:
+                                            </label>
+                                            <CustomAutoComplete
+                                                options={states}
+                                                value={property.state}
+                                                onChange={onChange}
+                                                city={false}
+                                            />
+                                        </div>
+                                        <div className="col-12 col-md-6 mt-1">
+                                            <label htmlFor="lotSqft">
+                                                City:
+                                            </label>
+                                            <CustomAutoComplete
+                                                options={UsCities}
+                                                value={property.city}
+                                                onChange={onChange}
+                                                city={true}
+                                            />
+                                        </div>
+                                        <div className="col-12 col-md-6 mt-1">
+                                            <label htmlFor="zipCode">
+                                                Zip Code:
+                                            </label>
+                                            <input
+                                                type="text"
+                                                id="zipCode"
+                                                placeholder="Enter Zip Code"
+                                                value={property.zipCode}
+                                                onChange={e => setProperty({ ...property, zipCode: e.target.value })}
+                                            />
+                                        </div>
+                                        <div className="col-12 col-md-6 mt-1">
+                                            <label htmlFor="location">
+                                                Location<span className="text-danger">*</span>:
+                                            </label>
+                                            <input
+                                                required
+                                                type="text"
+                                                id="location"
+                                                placeholder="Paste Location Link"
+                                                value={property.location}
+                                                onChange={e => setProperty({ ...property, location: e.target.value })}
                                             />
                                         </div>
                                         <hr className="mt-4 mb-4" />
                                         <h5>Property Details</h5>
                                         <div className="col-12 col-md-6 col-lg-4 mt-1">
                                             <label htmlFor="propertyType">
-                                                Property Type:
+                                                Property Type<span className="text-danger">*</span>:
                                             </label>
                                             <input
+                                                required
                                                 type="text"
                                                 id="propertyType"
                                                 placeholder="Enter Property Type"
                                                 value={propertyDetails.type}
-                                                onChange={e => setPropertyDetails({ ...property, type: e.target.value })}
+                                                onChange={e => setPropertyDetails({ ...propertyDetails, type: e.target.value })}
                                             />
                                         </div>
                                         <div className="col-12 col-md-6 col-lg-4 mt-1">
                                             <label htmlFor="yearBuilt">
-                                                Year Built:
+                                                Year Built<span className="text-danger">*</span>:
                                             </label>
                                             <input
-                                                type="number"
+                                                required
+                                                type="text"
                                                 id="yearBuilt"
                                                 placeholder="Enter Year Built"
                                                 value={propertyDetails.yearBuilt}
-                                                onChange={e => setPropertyDetails({ ...property, yearBuilt: e.target.value })}
+                                                onChange={e => setPropertyDetails({ ...propertyDetails, yearBuilt: e.target.value })}
                                             />
                                         </div>
                                         <div className="col-12 col-md-6 col-lg-4 mt-1">
                                             <label htmlFor="availablity">
-                                                Availablity:
+                                                Availablity<span className="text-danger">*</span>:
                                             </label>
                                             <input
+                                                required
                                                 type="date"
                                                 id="availablity"
                                                 placeholder="Enter Availablity"
                                                 value={propertyDetails.availablity}
-                                                onChange={e => setPropertyDetails({ ...property, availablity: e.target.value })}
+                                                onChange={e => setPropertyDetails({ ...propertyDetails, availablity: e.target.value })}
                                             />
                                         </div>
                                         <div className="col-12 mt-1">
                                             <label htmlFor="description">
-                                                Description:
+                                                Description<span className="text-danger">*</span>:
                                             </label>
                                             <textarea
+                                                required
                                                 id="description"
                                                 placeholder="Enter Description"
                                                 value={propertyDetails.description}
-                                                onChange={e => setPropertyDetails({ ...property, description: e.target.value })}
+                                                onChange={e => setPropertyDetails({ ...propertyDetails, description: e.target.value })}
                                             />
                                         </div>
                                         <hr className="mt-4 mb-4" />
@@ -365,17 +723,17 @@ const AddNewProperties = () => {
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex">
+                                            <div className="d-flex flex-wrap">
                                                 {
-                                                    chunkArray(propertFeatures.bedrooms, 5).map((chunk, idx) => (
-                                                        <ul key={idx}>
+                                                    chunkArray(propertFeatures.bedrooms, 10).map((chunk, idx) => (
+                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
                                                             {chunk.map((listItem, i) => (
                                                                 <li key={i} className="mt-1 d-flex list-style-bullet justify-content-between">
                                                                     {listItem}
                                                                     <Button
                                                                         variant="outline-danger"
                                                                         className="py-0 ms-5"
-                                                                        onClick={() => handleDeleteFeature('interiorFeatures', i)}
+                                                                        onClick={() => handleDeleteFeature('bedrooms', i)}
                                                                     >
                                                                         Delete
                                                                     </Button>
@@ -401,22 +759,22 @@ const AddNewProperties = () => {
                                                 variant="outline-success"
                                                 onClick={e => {
                                                     setPropertyFeatures({ ...propertFeatures, bathrooms: [...propertFeatures.bathrooms, features.bathrooms] })
-                                                    setFeatures({ ...features, bedrooms: e.target.value })
+                                                    setFeatures({ ...features, bathrooms: e.target.value })
                                                 }}
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex">
+                                            <div className="d-flex flex-wrap">
                                                 {
-                                                    chunkArray(propertFeatures.bathrooms, 5).map((chunk, idx) => (
-                                                        <ul key={idx}>
+                                                    chunkArray(propertFeatures.bathrooms, 10).map((chunk, idx) => (
+                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
                                                             {chunk.map((listItem, i) => (
                                                                 <li key={i} className="mt-1 d-flex list-style-bullet justify-content-between">
                                                                     {listItem}
                                                                     <Button
                                                                         variant="outline-danger"
                                                                         className="py-0 ms-5"
-                                                                        onClick={() => handleDeleteFeature('interiorFeatures', i)}
+                                                                        onClick={() => handleDeleteFeature('bathrooms', i)}
                                                                     >
                                                                         Delete
                                                                     </Button>
@@ -447,10 +805,10 @@ const AddNewProperties = () => {
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex">
+                                            <div className="d-flex flex-wrap">
                                                 {
-                                                    chunkArray(propertFeatures.appliances, 5).map((chunk, idx) => (
-                                                        <ul key={idx}>
+                                                    chunkArray(propertFeatures.appliances, 10).map((chunk, idx) => (
+                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
                                                             {chunk.map((listItem, i) => (
                                                                 <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
                                                                     {listItem}
@@ -488,10 +846,10 @@ const AddNewProperties = () => {
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex">
+                                            <div className="d-flex flex-wrap">
                                                 {
-                                                    chunkArray(propertFeatures.interiorFeatures, 5).map((chunk, idx) => (
-                                                        <ul key={idx}>
+                                                    chunkArray(propertFeatures.interiorFeatures, 10).map((chunk, idx) => (
+                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
                                                             {chunk.map((listItem, i) => (
                                                                 <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
                                                                     {listItem}
@@ -529,10 +887,10 @@ const AddNewProperties = () => {
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex">
+                                            <div className="d-flex flex-wrap">
                                                 {
-                                                    chunkArray(propertFeatures.heatingCooling, 5).map((chunk, idx) => (
-                                                        <ul key={idx}>
+                                                    chunkArray(propertFeatures.heatingCooling, 10).map((chunk, idx) => (
+                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
                                                             {chunk.map((listItem, i) => (
                                                                 <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
                                                                     {listItem}
@@ -570,10 +928,10 @@ const AddNewProperties = () => {
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex">
+                                            <div className="d-flex flex-wrap">
                                                 {
-                                                    chunkArray(propertFeatures.exterior, 5).map((chunk, idx) => (
-                                                        <ul key={idx}>
+                                                    chunkArray(propertFeatures.exterior, 10).map((chunk, idx) => (
+                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
                                                             {chunk.map((listItem, i) => (
                                                                 <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
                                                                     {listItem}
@@ -611,10 +969,10 @@ const AddNewProperties = () => {
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex">
+                                            <div className="d-flex flex-wrap">
                                                 {
-                                                    chunkArray(propertFeatures.garage, 5).map((chunk, idx) => (
-                                                        <ul key={idx}>
+                                                    chunkArray(propertFeatures.garage, 10).map((chunk, idx) => (
+                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
                                                             {chunk.map((listItem, i) => (
                                                                 <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
                                                                     {listItem}
@@ -652,10 +1010,10 @@ const AddNewProperties = () => {
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex">
+                                            <div className="d-flex flex-wrap">
                                                 {
-                                                    chunkArray(propertFeatures.landInfo, 5).map((chunk, idx) => (
-                                                        <ul key={idx}>
+                                                    chunkArray(propertFeatures.landInfo, 10).map((chunk, idx) => (
+                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
                                                             {chunk.map((listItem, i) => (
                                                                 <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
                                                                     {listItem}
@@ -693,10 +1051,10 @@ const AddNewProperties = () => {
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex">
+                                            <div className="d-flex flex-wrap">
                                                 {
-                                                    chunkArray(propertFeatures.homeownersAssociation, 5).map((chunk, idx) => (
-                                                        <ul key={idx}>
+                                                    chunkArray(propertFeatures.homeownersAssociation, 10).map((chunk, idx) => (
+                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
                                                             {chunk.map((listItem, i) => (
                                                                 <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
                                                                     {listItem}
@@ -734,10 +1092,10 @@ const AddNewProperties = () => {
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex">
+                                            <div className="d-flex flex-wrap">
                                                 {
-                                                    chunkArray(propertFeatures.schoolInfo, 5).map((chunk, idx) => (
-                                                        <ul key={idx}>
+                                                    chunkArray(propertFeatures.schoolInfo, 10).map((chunk, idx) => (
+                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
                                                             {chunk.map((listItem, i) => (
                                                                 <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
                                                                     {listItem}
@@ -775,10 +1133,10 @@ const AddNewProperties = () => {
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex">
+                                            <div className="d-flex flex-wrap">
                                                 {
-                                                    chunkArray(propertFeatures.rentalInfo, 5).map((chunk, idx) => (
-                                                        <ul key={idx}>
+                                                    chunkArray(propertFeatures.rentalInfo, 10).map((chunk, idx) => (
+                                                        <ul key={idx} className="col-12 col-md-6" v>
                                                             {chunk.map((listItem, i) => (
                                                                 <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
                                                                     {listItem}
@@ -816,10 +1174,10 @@ const AddNewProperties = () => {
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex">
+                                            <div className="d-flex flex-wrap">
                                                 {
-                                                    chunkArray(propertFeatures.amenities, 5).map((chunk, idx) => (
-                                                        <ul key={idx}>
+                                                    chunkArray(propertFeatures.amenities, 10).map((chunk, idx) => (
+                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
                                                             {chunk.map((listItem, i) => (
                                                                 <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
                                                                     {listItem}
@@ -857,10 +1215,10 @@ const AddNewProperties = () => {
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex">
+                                            <div className="d-flex flex-wrap">
                                                 {
-                                                    chunkArray(propertFeatures.otherInfo, 5).map((chunk, idx) => (
-                                                        <ul key={idx}>
+                                                    chunkArray(propertFeatures.otherInfo, 10).map((chunk, idx) => (
+                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
                                                             {chunk.map((listItem, i) => (
                                                                 <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
                                                                     {listItem}
@@ -898,10 +1256,10 @@ const AddNewProperties = () => {
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex">
+                                            <div className="d-flex flex-wrap">
                                                 {
-                                                    chunkArray(propertFeatures.buildingAndConstruction, 5).map((chunk, idx) => (
-                                                        <ul key={idx}>
+                                                    chunkArray(propertFeatures.buildingAndConstruction, 10).map((chunk, idx) => (
+                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
                                                             {chunk.map((listItem, i) => (
                                                                 <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
                                                                     {listItem}
@@ -939,10 +1297,10 @@ const AddNewProperties = () => {
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex">
+                                            <div className="d-flex flex-wrap">
                                                 {
-                                                    chunkArray(propertFeatures.utilities, 5).map((chunk, idx) => (
-                                                        <ul key={idx}>
+                                                    chunkArray(propertFeatures.utilities, 10).map((chunk, idx) => (
+                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
                                                             {chunk.map((listItem, i) => (
                                                                 <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
                                                                     {listItem}
@@ -980,10 +1338,10 @@ const AddNewProperties = () => {
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex">
+                                            <div className="d-flex flex-wrap">
                                                 {
-                                                    chunkArray(propertFeatures.homeFeatures, 5).map((chunk, idx) => (
-                                                        <ul key={idx}>
+                                                    chunkArray(propertFeatures.homeFeatures, 10).map((chunk, idx) => (
+                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
                                                             {chunk.map((listItem, i) => (
                                                                 <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
                                                                     {listItem}
@@ -1003,7 +1361,7 @@ const AddNewProperties = () => {
                                         </div>
                                         <div className="col-12 mt-1">
                                             <label htmlFor="propertyType">
-                                                Images:
+                                                Images<span className="text-danger">*</span>:
                                             </label>
                                             <input
                                                 type="file"
@@ -1014,21 +1372,23 @@ const AddNewProperties = () => {
                                             />
                                         </div>
                                         <div className="upload-img-div">
-                                            {/* {filesEdit.map((v, i) => {
-                                                return (
-                                                    <div key={i}>
-                                                        <Image
-                                                            src={v.url}
-                                                            alt={v.public_id}
-                                                            width={'170px'}
-                                                            height={'200px'}
-                                                        />
-                                                        <br />
-                                                        <Button variant="outline-danger" onClick={e => fileDelete(v, currentEditItem)}>Remove</Button>
-                                                    </div>
-                                                )
-                                            })
-                                            } */}
+                                            {files && propertyDiv === 'edit' ?
+                                                filesEdit.map((v, i) => {
+                                                    return (
+                                                        <div key={i}>
+                                                            <Image
+                                                                src={v.url}
+                                                                alt={v.public_id}
+                                                                width={'150px'}
+                                                                height={'100px'}
+                                                            />
+                                                            <br />
+                                                            <Button variant="outline-danger" onClick={e => fileDelete(v, currentEditProperty)}>Remove</Button>
+                                                        </div>
+                                                    )
+                                                }) :
+                                                <></>}
+
                                             {files && files.map((v, i) => (
                                                 <div key={i}>
                                                     <Image
@@ -1041,38 +1401,62 @@ const AddNewProperties = () => {
                                             ))}
 
                                         </div>
+                                        <div className="col-12 mt-1">
+                                            <label htmlFor="availableFor">
+                                                Available For<span className="text-danger">*</span>:
+                                            </label>
+                                            <select
+                                                required
+                                                type="text"
+                                                id="availableFor"
+                                                value={property.availableFor}
+                                                onChange={e => setProperty({ ...property, availableFor: e.target.value })}
+                                            >
+                                                <option value={''} disabled>Available For</option>
+                                                <option value="rent">Rent</option>
+                                                <option value="sell">Sell</option>
+                                            </select>
+                                        </div>
                                         <div className="d-flex justify-content-around">
                                             <Button
                                                 variant="outline-danger"
                                                 style={{ width: '200px' }}
                                                 className="my-2"
                                                 onClick={e => {
-                                                    setPropertyDiv(!propertyDiv)
+                                                    setPropertyDiv("")
                                                     reset()
                                                 }}
                                             >
                                                 Cancel
                                             </Button>
-                                            <Button variant="outline-success" style={{ width: '200px' }} className="my-2">
-                                                Add Property
+                                            <Button variant="outline-success" type="submit" style={{ width: '200px' }} className="my-2">
+                                                {
+                                                    propertyDiv === 'edit' ?
+                                                        'Update Property' :
+                                                        'Add Property'
+                                                }
                                             </Button>
                                         </div>
-                                    </div>
+                                    </form>
                                 </>
                                 :
                                 <>
                                     <div className="button-search-div">
                                         <Space>
-                                            <Button variant="outline-dark" className="all-button">All Bills</Button>
+                                            <Button variant="outline-dark" className="all-button" onClick={e => getProperty(currentPage, limit, 'all')}>All Properties</Button>
                                             <div className="search-div-property-res">
                                                 <input
+                                                    required
                                                     type='text'
                                                     placeholder={"Search with address"}
                                                     className="search-input me-1"
+                                                    value={searchValue}
+                                                    onChange={e => setSearchValue(e.target.value)}
                                                 />
                                                 <Button
                                                     variant="outline-secondary"
                                                     className="search-button"
+                                                    onClick={searchProperty}
                                                 >
                                                     Search
                                                 </Button>
@@ -1081,13 +1465,17 @@ const AddNewProperties = () => {
                                         <Space>
                                             <div className="search-div-property">
                                                 <input
+                                                    required
                                                     type='text'
                                                     placeholder={"Search with address"}
                                                     className="search-input me-1"
+                                                    value={searchValue}
+                                                    onChange={e => setSearchValue(e.target.value)}
                                                 />
                                                 <Button
                                                     variant="outline-secondary"
                                                     className="search-button"
+                                                    onClick={searchProperty}
                                                 >
                                                     Search
                                                 </Button>
@@ -1095,16 +1483,16 @@ const AddNewProperties = () => {
                                             <Button
                                                 variant="outline-success"
                                                 className="add-button"
-                                                onClick={e => setPropertyDiv(true)}
+                                                onClick={e => setPropertyDiv('add')}
                                             >
-                                                Add New Bill
+                                                Add New Property
                                             </Button>
                                         </Space>
                                     </div>
                                     <div className="properties-table-main-div">
                                         <Table
                                             columns={columns}
-                                            // data={rows}
+                                            data={rows}
                                             actions={actions}
                                             pagination={true}
                                             totalQuantity={totalProperties}

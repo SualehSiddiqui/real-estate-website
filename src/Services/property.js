@@ -2,58 +2,95 @@ import conf from "../Config";
 import axios from "axios";
 import Cookie from "js-cookies";
 
-
-class ItemService {
+class PropertyService {
     constructor() {
         this.intialApi = axios.create({
-            baseURL: `${conf.apiUrl}/item`,
+            baseURL: `${conf.apiUrl}/property`,
             headers: {
-                'Content-Type': 'application/json',
-            }
+                "Content-Type": "application/json",
+            },
         });
 
         this.intialApi.interceptors.request.use(
-            config => {
-                const token = Cookie.getItem('token') || '';
+            (config) => {
+                const token = Cookie.getItem("token") || "";
                 if (token) {
-                    config.headers['Authorization'] = `Bearer ${token}`;
+                    config.headers["Authorization"] = `Bearer ${token}`;
                 }
                 return config;
             },
-            error => {
-                return Promise.reject(error);
-            }
+            (error) => Promise.reject(error)
         );
-    };
+    }
 
-    async createItem(item) {
+    async createProperty(property) {
         try {
-            const response = await this.intialApi.post('/add', item);
+            const response = await this.intialApi.post("/", property);
             return response.data;
         } catch (error) {
-            this.handleError(error)
+            this.handleError(error);
         }
-    };
+    }
 
-    async deleteItemById(id) {
+    async uploadFiles(id, files) {
+        try {
+            const formData = new FormData();
+            files.forEach((file) => formData.append("files", file));
+
+            const token = Cookie.getItem("token") || "";
+            const url = `${conf.apiUrl}/property/image/${id}`;
+
+            const response = await axios.post(url, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            return response.data;
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async deleteFiles(id, encodedPublicId) {
+        try {
+
+            const token = Cookie.getItem("token") || "";
+            const url = `${conf.apiUrl}/property/image/${id}/${encodedPublicId}`;
+
+            const response = await axios.delete(url, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`
+                },
+            });
+
+            return response.data;
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async updateProperty(id, property) {
+        try {
+            const response = await this.intialApi.post(`/edit/${id}`, property);
+            return response.data;
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async deleteProperty(id) {
         try {
             const response = await this.intialApi.delete(`/delete/${id}`);
             return response.data;
         } catch (error) {
             this.handleError(error);
         }
-    };
+    }
 
-    async updateItem(id, item) {
-        try {
-            const response = await this.intialApi.post(`/update/${id}`, item);
-            return response.data;
-        } catch (error) {
-            this.handleError(error);
-        }
-    };
-
-    async getAllItem(page, size, status) {
+    async getAllProperty(page, size, status) {
         try {
             const response = await this.intialApi.get(`/all/${page}/${size}/${status}`);
             return response.data;
@@ -62,9 +99,9 @@ class ItemService {
         }
     };
 
-    async searchItem(searchObj) {
+    async searchProperty(searchValue) {
         try {
-            const response = await this.intialApi.post(`/search`, searchObj);
+            const response = await this.intialApi.get(`/search/${searchValue}`);
             return response.data;
         } catch (error) {
             this.handleError(error);
@@ -73,18 +110,15 @@ class ItemService {
 
     handleError(error) {
         if (error.response) {
-            console.error('API Error Response:', error.response.data);
-            throw new Error(error.response.data.message || 'Something went wrong');
+            throw new Error(error.response.data.message || "Something went wrong");
         } else if (error.request) {
-            console.error('No Response:', error.request);
-            throw new Error('No response received from the server');
+            throw new Error("No response received from the server");
         } else {
-            console.error('Request Error:', error.message);
-            throw new Error(error.message || 'An error occurred while making the request');
+            throw new Error(error.message || "An error occurred");
         }
     }
-};
+}
 
-const itemService = new ItemService();
+const propertyService = new PropertyService();
 
-export default itemService;
+export default propertyService;

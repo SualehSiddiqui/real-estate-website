@@ -5,7 +5,7 @@
 
 .properties-div {
     width: 100%;
-    height: 80vh;
+    min-height: 80vh;
     padding: 10px;
     border-radius: 10px;
     box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
@@ -15,12 +15,12 @@
 
 .properties-table-main-div {
     width: 100%;
-    height: 90%;
+    /* height: 90%; */
 }
 
 .button-search-div {
     height: 100%;
-    height: 10%;
+    /* height: 10%; */
     display: flex;
     justify-content: space-between;
     margin-bottom: 0.4rem;
@@ -48,10 +48,11 @@
 }
 
 .new-property-form>div>input,
+.new-property-form>div>select,
 .new-property-form>div>label,
 .new-property-form>div>textarea {
     width: 100%;
-    height: 35px;
+    height: 40px;
     border-radius: 8px;
     padding: 10px;
 }

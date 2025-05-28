@@ -31,41 +31,6 @@ const CustomNextArrow = ({ onClick }) => (
 );
 
 const Property = () => {
-    const dispatch = useDispatch();
-
-    useEffect(() => {
-        const checkUser = async () => {
-            const user = await authService.getCurrentUser();
-            if (user) {
-                dispatch(login(user));
-            } else {
-                dispatch(logout());
-            }
-        };
-        checkUser();
-    }, [dispatch]);
-
-    const checkLoginStatus = () => {
-        const loginTimestamp = Cookie.getItem('loginTimestamp');
-
-        if (loginTimestamp) {
-            const currentTime = Date.now();
-            const timeElapsed = currentTime - loginTimestamp;
-            const twentyFourHoursInMs = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
-            if (timeElapsed > twentyFourHoursInMs) {
-                // If more than 24 hours have passed, log out the user
-                dispatch(logout);
-                Cookie.removeItem('user');
-                Cookie.removeItem('token');
-                Cookie.removeItem('timestamp');
-            }
-        };
-    };
-
-    useEffect(() => {
-        checkLoginStatus()
-    }, []);
 
     const [seeMore, setSeeMore] = useState(false);
     const [seeMoreFeatures, setSeeMoreFeatures] = useState(false);

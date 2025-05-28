@@ -4,12 +4,14 @@ import authService from "./Services/auth";
 import Cookies from "js-cookies";
 import { useEffect } from "react";
 import { Spinner } from "./Components";
-import { login, logout } from "./Store/authSlice.js";
+import { login, logout, startChecking } from "./Store/authSlice.js";
 
 function App() {
   const dispatch = useDispatch();
 
   const checkUser = async () => {
+    dispatch(startChecking());
+    
     const user = await authService.getCurrentUser();
     if (user) {
       dispatch(login(user));
@@ -19,7 +21,7 @@ function App() {
   };
   useEffect(() => {
     checkUser();
-  }, [dispatch]);
+  }, []);
 
   const checkLoginStatus = () => {
     const loginTimestamp = Cookies.getItem('loginTimestamp');
@@ -32,9 +34,9 @@ function App() {
       if (timeElapsed > twentyFourHoursInMs) {
         // If more than 24 hours have passed, log out the user
         dispatch(logout);
-        Cookie.removeItem('user');
-        Cookie.removeItem('token');
-        Cookie.removeItem('timestamp');
+        Cookies.removeItem('user');
+        Cookies.removeItem('token');
+        Cookies.removeItem('timestamp');
       }
     };
   };

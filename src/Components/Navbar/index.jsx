@@ -65,10 +65,10 @@ function NavbarComp({ withoutHero }) {
     }, [dispatch])
 
     const logoutUser = () => {
+        dispatch(logout());
         Cookies.removeItem('user');
         Cookies.removeItem('timestamp');
         Cookies.removeItem('token');
-        dispatch(logout);
         navigate('/')
     }
 
