@@ -3,6 +3,7 @@ import { formatDate, sortData, getNestedValue, renderPagination } from '../../Ut
 import BootButton from 'react-bootstrap/Button';
 import './style.css';
 import { Form } from 'react-bootstrap';
+import moment from 'moment';
 
 function Table({
     columns,
@@ -52,9 +53,9 @@ function Table({
                 <td colSpan={columns.length + actions.length}>No Record Found</td>
             </tr> :
             data?.map((row, index) => (
-                <tr key={index}>
+                <tr key={index} style={{ backgroundColor: row.read === false ? '#e9f9ff' : '#ffffff' }}>
                     {selectable && (
-                        <td>
+                        <td style={{ backgroundColor: 'transparent' }}>
                             <input
                                 type="checkbox"
                                 checked={selectedRows?.has(index)}
@@ -65,10 +66,10 @@ function Table({
                     {columns?.map((column) => {
                         let value = getNestedValue(row, column.key);
                         if (column.key === 'date' || column.key === 'createdAt') {
-                            value = formatDate(value, 'D/M/YY');
+                            value = moment(value).fromNow();
                         }
                         return (
-                            <td key={column.key} style={column.style} onClick={e => handleRowClick ? handleRowClick(row, index) : {}}>
+                            <td key={column.key} style={{ ...column.style, backgroundColor: 'transparent' }} onClick={e => handleRowClick ? handleRowClick(row, index) : {}}>
                                 {
                                     column.limit && value.length > column.limit ?
                                         `${value.slice(0, column.limit)}...`
@@ -82,7 +83,7 @@ function Table({
                         const btnTitle = action.name === 'Status' ? (row.status ? 'Hide' : 'Show') : action.name;
                         const btnBg = action.name === 'Status' ? (row.status ? 'outline-secondary' : 'outline-primary') : action.variant;
                         return (
-                            <td key={actionIndex}>
+                            <td key={actionIndex} style={{ backgroundColor: 'transparent' }}>
                                 <BootButton
                                     className={action.className}
                                     onClick={() => action.handler(row, index)}

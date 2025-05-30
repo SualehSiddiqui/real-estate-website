@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import authService from "./Services/auth";
 import Cookies from "js-cookies";
 import { useEffect } from "react";
-import { Spinner } from "./Components";
+import { ScrollToTop, Spinner } from "./Components";
 import { login, logout, startChecking } from "./Store/authSlice.js";
 
 function App() {
@@ -11,7 +11,7 @@ function App() {
 
   const checkUser = async () => {
     dispatch(startChecking());
-    
+
     const user = await authService.getCurrentUser();
     if (user) {
       dispatch(login(user));
@@ -49,6 +49,7 @@ function App() {
 
   return (
     <>
+      {/* <ScrollToTop /> */}
       {spinnerStatus && <Spinner />}
       <Outlet />
     </>

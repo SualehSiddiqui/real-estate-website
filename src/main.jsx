@@ -8,7 +8,7 @@ import { Provider } from 'react-redux';
 import store from "./Store/store.js";
 
 //Pages
-import { Home, Buy, Rent, Property, LoginAgent, SignupAgent, AddNewProperties, Message } from "./Pages";
+import { Home, Buy, Rent, Property, LoginAgent, SignupAgent, AddNewProperties, Message, Profile } from "./Pages";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -21,6 +21,7 @@ const router = createBrowserRouter(
       <Route path='/signup-as-agent' element={<SignupAgent />} />
       <Route path='/add-new-properties' element={<AddNewProperties />} />
       <Route path='/message' element={<Message />} />
+      <Route path='/profile' element={<Profile />} />
     </Route>
   )
 )

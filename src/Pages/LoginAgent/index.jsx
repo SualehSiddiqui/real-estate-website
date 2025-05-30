@@ -9,6 +9,7 @@ import { login as authLogin } from "../../Store/authSlice.js";
 import { show, hide } from "../../Store/spinnerSlice.js";
 import Cookies from "js-cookies";
 import Swal from "sweetalert2";
+import { Modal } from 'antd';
 
 const LoginAgent = () => {
     const dispatch = useDispatch();
@@ -23,11 +24,17 @@ const LoginAgent = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    const reset = () => {
+        setEmail('');
+        setPassword('');
+    }
+
     const authenticateUser = async (e) => {
         e.preventDefault();
         dispatch(show());
         try {
             const response = await authService.loginUser(email, password);
+
             Cookies.setItem('user', JSON.stringify(response.user));
             Cookies.setItem('token', response.token);
             Cookies.setItem('timestamp', Date.now());
@@ -44,7 +51,46 @@ const LoginAgent = () => {
         } finally {
             dispatch(hide());
         }
-    }
+    };
+
+    const [open, setOpen] = useState(false);
+    const [confirmLoading, setConfirmLoading] = useState(false);
+
+    const showModal = () => {
+        setOpen(true);
+    };
+
+    const handleOk = async () => {
+        setConfirmLoading(true);
+        dispatch(show());
+        try {
+            const response = await authService.forgotPassword({ email });
+
+            setOpen(false);
+            Swal.fire({
+                icon: "success",
+                title: "Sent!",
+                text: response?.message
+            });
+            reset();
+
+        } catch (error) {
+            console.log('Error authorizing user:', error.message);
+            Swal.fire({
+                icon: "error",
+                title: "Error authorizing user!",
+                text: error.message,
+            });
+        } finally {
+            setConfirmLoading(false);
+            dispatch(hide());
+        }
+    };
+
+    const handleCancel = () => {
+        console.log('Clicked cancel button');
+        setOpen(false);
+    };
 
     return (
         <>
@@ -79,7 +125,7 @@ const LoginAgent = () => {
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
                             />
-                            <Link className="login-page-link text-start">
+                            <Link className="login-page-link text-start" onClick={showModal}>
                                 Forgot your password?
                             </Link>
                             <button type="submit">Login</button>
@@ -91,6 +137,24 @@ const LoginAgent = () => {
                 </div>
             </div>
             <Footer />
+            <Modal
+                title="Forgot Password"
+                open={open}
+                onOk={handleOk}
+                confirmLoading={confirmLoading}
+                onCancel={handleCancel}
+                width={'500px'}
+                okText={'Send Email'}
+            >
+                <form className="forgot-main-div">
+                    <input
+                        type="email"
+                        placeholder='Enter Your Email'
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                    />
+                </form>
+            </Modal>
         </>
     )
 }

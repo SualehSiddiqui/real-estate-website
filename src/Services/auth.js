@@ -43,6 +43,15 @@ class AuthService {
         }
     }
 
+    async getSpecificUser(id) {
+        try {
+            const response = await this.intialApi.get(`/user/${id}`);
+            return response.data;
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
     async updateUserPass(id, passObj) {
         try {
             const response = await this.intialApi.post(`/updatePass/${id}`, passObj);
@@ -72,7 +81,16 @@ class AuthService {
 
     async updateUser(id, user) {
         try {
-            const response = await this.intialApi.post(`/update/${id}`, user);
+            const response = await this.intialApi.post(`/update/${id}/true`, user);
+            return response.data;
+        } catch (error) {
+            this.handleError(error);
+        }
+    };
+
+    async forgotPassword(obj) {
+        try {
+            const response = await this.intialApi.post(`/forgetPassword`, obj);
             return response.data;
         } catch (error) {
             this.handleError(error);
@@ -87,6 +105,43 @@ class AuthService {
             this.handleError(error);
         }
     };
+
+    async getAllMessages(pageNo, limit, id) {
+        try {
+            const response = await this.intialApi.get(`/message/${id}/${pageNo}/${limit}`)
+            return response.data;
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async messageAboutProperty(obj, userId, property) {
+        try {
+            const newObj = { ...obj, property }
+            const response = await this.intialApi.post(`/message/${userId}`, newObj)
+            return response.data;
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async markAsRead(userId, messageId) {
+        try {
+            const response = await this.intialApi.get(`/readMessage/${userId}/${messageId}`)
+            return response.data;
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
+    async deleteMessage(userId, messageId) {
+        try {
+            const response = await this.intialApi.delete(`/deleteMessage/${userId}/${messageId}`)
+            return response.data;
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
 
     handleError(error) {
         if (error.response) {

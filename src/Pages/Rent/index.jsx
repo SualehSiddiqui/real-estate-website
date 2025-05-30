@@ -1,14 +1,64 @@
-import { Footer, HouseCard, Navbar } from '../../Components';
+import { Footer, HouseCard, Navbar, PropertySearchAutocomplete } from '../../Components';
 import { Container } from 'react-bootstrap';
 import HeroImg from "../../Assets/hero.png";
-import { IoSearch } from "react-icons/io5";
-import RentalsImg1 from "../../Assets/rentals-1.png";
-import RentalsImg2 from "../../Assets/rentals-2.png";
-import RentalsImg3 from "../../Assets/rentals-3.png";
 import { WhyUs } from "../../Sections";
+import { useEffect, useState } from "react";
+import propertyService from "../../Services/property";
+import Swal from "sweetalert2";
+import { useDispatch } from "react-redux";
+import { show, hide } from "../../Store/spinnerSlice";
 
 
 const Rent = () => {
+    const dispatch = useDispatch();
+
+    const [data, setData] = useState([]);
+
+    const getProperty = async (city, state) => {
+        dispatch(show());
+        try {
+            // Build the filter parameters for the unified API
+            const filters = {
+                page: undefined,
+                size: undefined,
+                availableFor: 'rent',
+            };
+
+            if (city && city.trim() !== '') {
+                filters.city = city.trim();
+            }
+
+            if (state && state.trim() !== '') {
+                filters.state = state.trim();
+            }
+
+            const response = await propertyService.getProperties(filters);
+
+            setData(response.properties);
+
+
+        } catch (error) {
+            console.log('Error fetching properties:', error.message);
+            Swal.fire({
+                icon: "error",
+                title: "Error fetching properties!",
+                text: error.message,
+            });
+        } finally {
+            dispatch(hide());
+        }
+    };
+
+    useEffect(() => {
+        getProperty()
+    }, []);
+
+    const handleSearch = (value) => {
+        if (value?.type?.toLowerCase() === 'city') getProperty(value?.name, undefined);
+        else if (value?.type?.toLowerCase() === 'state') getProperty(undefined, value?.name);
+        else getProperty(undefined, undefined);
+    }
+
     return (
         <>
             <div className="main-home-div">
@@ -29,12 +79,7 @@ const Rent = () => {
                                 <img src={HeroImg} alt="Building-Image" />
                             </div>
                             <div className="search-div">
-                                <div className="input-search-div">
-                                    <input type="text" placeholder="Enter City, State, Neighborhood" />
-                                    <div className="search-icon">
-                                        <IoSearch />
-                                    </div>
-                                </div>
+                                <PropertySearchAutocomplete onSearch={handleSearch} />
                             </div>
                         </div>
                     </Container>
@@ -45,27 +90,19 @@ const Rent = () => {
                             Avaliable For Rent
                         </h1>
                         <div className="houses-container">
-                            <HouseCard
-                                imgLink={RentalsImg1}
-                                title={'single room'}
-                                address={'abcd'}
-                                price={399}
-                                _id={'abcd'}
-                            />
-                            <HouseCard
-                                imgLink={RentalsImg2}
-                                title={'single room'}
-                                address={'abcd'}
-                                price={399}
-                                _id={'abcd'}
-                            />
-                            <HouseCard
-                                imgLink={RentalsImg3}
-                                title={'single room'}
-                                address={'abcd'}
-                                price={399}
-                                _id={'abcd'}
-                            />
+                            {
+                                data.length > 0 ? data?.map(property => (
+                                    <HouseCard
+                                        imgLink={property?.imgUrl[0]?.url}
+                                        title={property?.title}
+                                        address={property?.address}
+                                        price={property?.price}
+                                        _id={property?._id}
+                                        key={property?._id}
+                                    />
+                                )) :
+                                    <h4>No Properties available for Rent in this City or State</h4>
+                            }
                         </div>
                     </Container>
                 </div>

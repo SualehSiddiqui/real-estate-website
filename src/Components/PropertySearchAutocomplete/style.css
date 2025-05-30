@@ -1,0 +1,116 @@
+.input-search-div {
+    width: 90% !important;
+    height: 80%;
+    border-radius: 34px;
+    background-color: #ffffff;
+    position: relative;
+}
+
+.react-autosuggest__container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.input-search-div input {
+    width: 98%;
+    height: 90%;
+    border-radius: 30px;
+    padding: 10px 20px;
+    border: none;
+}
+
+.search-icon {
+    position: absolute;
+    top: 7px;
+    right: 8px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: black;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    color: white;
+}
+
+.search-icon:hover {
+    background-color: gray;
+}
+
+/* Suggestion container */
+.react-autosuggest__section-title {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    padding: 0px 24px;
+    color: #555;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.react-autosuggest__suggestions-container {
+    position: absolute;
+    top: 100%;
+    padding: 10px 0px;
+    /* right below the input */
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 16px !important;
+    margin-top: 2px;
+    overflow: hidden;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.react-autosuggest__suggestions-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Each suggestion */
+.react-autosuggest__suggestion {
+    padding: 12px 24px;
+    cursor: pointer;
+    text-transform: capitalize;
+}
+
+/* Highlighted suggestion on hover or keyboard nav */
+.react-autosuggest__suggestion--highlighted {
+    background-color: #e4e2e2;
+}
+
+/* You can style your small type label */
+.react-autosuggest__suggestion small {
+    color: #888;
+    margin-left: 8px;
+    font-weight: normal;
+}
+
+
+@media only screen and (max-width:576px) {
+    .search-icon {
+        position: absolute;
+        top: 6px;
+        right: 8px;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background-color: black;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        color: white;
+    }
+}

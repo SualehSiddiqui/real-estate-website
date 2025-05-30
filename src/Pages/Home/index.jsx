@@ -3,8 +3,48 @@ import { Footer, Navbar } from '../../Components';
 import { Container } from 'react-bootstrap';
 import HeroImg from "../../Assets/hero.png";
 import { About, Rentals, Testimonials, WhyUs } from '../../Sections';
+import { useDispatch } from 'react-redux';
+import { useEffect, useState } from 'react';
+import propertyService from '../../Services/property';
+import { show, hide } from "../../Store/spinnerSlice";
 
 const Home = () => {
+    const dispatch = useDispatch();
+
+    const [rentProperties, setRentProperties] = useState([]);
+    const [sellProperties, setSellProperties] = useState([]);
+
+    const getPropertiesByAvailability = async (availabilityType) => {
+        dispatch(show());
+        try {
+            const filters = {
+                availableFor: availabilityType,
+                limit: 3
+            };
+
+            const response = await propertyService.getProperties(filters);
+            return response.properties || [];
+        } catch (error) {
+            console.log(`Error fetching ${availabilityType} properties:`, error.message);
+            return [];
+        } finally {
+            dispatch(hide());
+        }
+    };
+
+    useEffect(() => {
+        const fetchProperties = async () => {
+            const rentData = await getPropertiesByAvailability('rent');
+            const sellData = await getPropertiesByAvailability('sell');
+
+            setRentProperties(rentData);
+            setSellProperties(sellData);
+        };
+
+        fetchProperties();
+    }, []);
+
+
     return (
         <>
             <div className='main-home-div'>
@@ -27,8 +67,8 @@ const Home = () => {
                         </div>
                     </Container>
                 </div>
-                <Rentals heading="Available for Rents" />
-                <Rentals heading="Available for Sale" />
+                <Rentals heading="Available for Rents" data={rentProperties} />
+                <Rentals heading="Available for Sale" data={sellProperties} />
                 <About />
                 <Testimonials />
                 <WhyUs />

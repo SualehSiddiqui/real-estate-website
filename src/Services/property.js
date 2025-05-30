@@ -90,18 +90,9 @@ class PropertyService {
         }
     }
 
-    async getAllProperty(page, size, status) {
+    async getProperties(filters) {
         try {
-            const response = await this.intialApi.get(`/all/${page}/${size}/${status}`);
-            return response.data;
-        } catch (error) {
-            this.handleError(error);
-        }
-    };
-
-    async searchProperty(searchValue) {
-        try {
-            const response = await this.intialApi.get(`/search/${searchValue}`);
+            const response = await this.intialApi.post(`/all`, filters);
             return response.data;
         } catch (error) {
             this.handleError(error);

@@ -140,6 +140,7 @@
     background-color: black;
     border: none;
     color: white;
+    text-decoration: none;
 }
 
 .contact-btn-house:hover {
@@ -319,7 +320,7 @@
     flex-wrap: wrap;
 }
 
-.agent-details-div>div>p {
+.agent-details-div>div>div {
     width: 50%;
     font-size: 14px;
     color: var(--text-color);
@@ -327,14 +328,13 @@
     margin-bottom: 10px;
 }
 
-.agent-details-div>div>p>p {
+.agent-details-div>div>div>p {
     width: 40%;
     margin-bottom: 0;
 }
 
 .agent-detail {
     width: 60% !important;
-    text-decoration: underline;
     color: black;
 }
 

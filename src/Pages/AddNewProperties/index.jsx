@@ -10,10 +10,11 @@ import UsStates from 'states-us';
 import propertyService from "../../Services/property";
 import { show, hide } from "../../Store/spinnerSlice";
 import Swal from "sweetalert2";
+import { ImCross } from "react-icons/im";
 
 const AddNewProperties = () => {
     const dispatch = useDispatch();
-    const { status, isChecking } = useSelector(state => state.auth);
+    const { status, isChecking, user } = useSelector(state => state.auth);
     const navigate = useNavigate();
     useEffect(() => {
         if (!isChecking) {
@@ -78,24 +79,72 @@ const AddNewProperties = () => {
         homeFeatures: '',
     });
 
-    const [propertFeatures, setPropertyFeatures] = useState({
-        bedrooms: [],
-        bathrooms: [],
-        appliances: [],
-        interiorFeatures: [],
-        heatingCooling: [],
-        exterior: [],
-        garage: [],
-        landInfo: [],
-        homeownersAssociation: [],
-        schoolInfo: [],
-        rentalInfo: [],
-        amenities: [],
-        otherInfo: [],
-        buildingAndConstruction: [],
-        utilities: [],
-        homeFeatures: [],
-    });
+    const [propertFeatures, setPropertyFeatures] = useState([
+        {
+            title: 'Bedrooms',
+            list: [],
+        },
+        {
+            title: 'Bathrooms',
+            list: [],
+        },
+        {
+            title: 'Appliances',
+            list: [],
+        },
+        {
+            title: 'Interior Features',
+            list: [],
+        },
+        {
+            title: 'Heating and Cooling',
+            list: [],
+        },
+        {
+            title: 'Exterior and Lot Features',
+            list: [],
+        },
+        {
+            title: 'Garage and Parking',
+            list: [],
+        },
+        {
+            title: 'Land Info',
+            list: [],
+        },
+        {
+            title: 'Homeowners Association',
+            list: [],
+        },
+        {
+            title: 'School Information',
+            list: [],
+        },
+        {
+            title: 'Rental Info',
+            list: [],
+        },
+        {
+            title: 'Amenities and Community Features',
+            list: [],
+        },
+        {
+            title: 'Other Property Info',
+            list: [],
+        },
+        {
+            title: 'Building and Construction',
+            list: [],
+        },
+        {
+            title: 'Utilities',
+            list: [],
+        },
+        {
+            title: 'Home Features',
+            list: [],
+        },
+    ]);
 
     const reset = () => {
         setProperty({
@@ -136,25 +185,75 @@ const AddNewProperties = () => {
             utilities: '',
             homeFeatures: '',
         });
-        setPropertyFeatures({
-            bedrooms: [],
-            bathrooms: [],
-            appliances: [],
-            interiorFeatures: [],
-            heatingCooling: [],
-            exterior: [],
-            garage: [],
-            landInfo: [],
-            homeownersAssociation: [],
-            schoolInfo: [],
-            rentalInfo: [],
-            amenities: [],
-            otherInfo: [],
-            buildingAndConstruction: [],
-            utilities: [],
-            homeFeatures: [],
-        });
+        setPropertyFeatures([
+            {
+                title: 'Bedrooms',
+                list: [],
+            },
+            {
+                title: 'Bathrooms',
+                list: [],
+            },
+            {
+                title: 'Appliances',
+                list: [],
+            },
+            {
+                title: 'Interior Features',
+                list: [],
+            },
+            {
+                title: 'Heating and Cooling',
+                list: [],
+            },
+            {
+                title: 'Exterior and Lot Features',
+                list: [],
+            },
+            {
+                title: 'Garage and Parking',
+                list: [],
+            },
+            {
+                title: 'Land Info',
+                list: [],
+            },
+            {
+                title: 'Homeowners Association',
+                list: [],
+            },
+            {
+                title: 'School Information',
+                list: [],
+            },
+            {
+                title: 'Rental Info',
+                list: [],
+            },
+            {
+                title: 'Amenities and Community Features',
+                list: [],
+            },
+            {
+                title: 'Other Property Info',
+                list: [],
+            },
+            {
+                title: 'Building and Construction',
+                list: [],
+            },
+            {
+                title: 'Utilities',
+                list: [],
+            },
+            {
+                title: 'Home Features',
+                list: [],
+            },
+        ]);
         setPropertyDiv('');
+        setFiles([]);
+        setFilesEdit([]);
 
     };
 
@@ -173,7 +272,7 @@ const AddNewProperties = () => {
     const actions = [
         {
             name: "View Add",
-            handler: (row) => { },
+            handler: (row) => window.open(`http://localhost:5173/property/${row._id}`, '_blank'),
             className: "bill-buttons",
             variant: 'outline-secondary',
             style: { width: '10%' }
@@ -194,57 +293,42 @@ const AddNewProperties = () => {
         },
     ];
 
-    const handleDeleteFeature = (featureCategory, indexToDelete) => {
-        setPropertyFeatures(prevFeatures => {
-            // Create a copy of the array for the category
-            const updatedArray = prevFeatures[featureCategory].filter((_, i) => i !== indexToDelete);
-
-            // Return updated state with that category replaced
-            return {
-                ...prevFeatures,
-                [featureCategory]: updatedArray,
-            };
-        });
-    };
-
-    const getProperty = async (pageNo, limit, status) => {
+    const getProperty = async (pageNo, limit, userId, searchValue) => {
         dispatch(show());
         try {
-            const response = await propertyService.getAllProperty(pageNo, limit, status);
-            setTotalProperties(response.totalProperties);
-            setRows(response.properties);
+            // Build the filter parameters for the unified API
+            const filters = {
+                page: pageNo,
+                size: limit,
+                userId: userId,
+            };
+
+            if (searchValue && searchValue.trim() !== '') {
+                filters.title = searchValue.trim();
+            }
+
+            if (!isChecking) {
+                const response = await propertyService.getProperties(filters);
+                setTotalProperties(response.totalProperties);
+                setRows(response.properties);
+            }
+
         } catch (error) {
-            console.log('Error updating user:', error.message);
+            console.log('Error fetching properties:', error.message);
+            Swal.fire({
+                icon: "error",
+                title: "Error fetching properties!",
+                text: error.message,
+            });
         } finally {
             dispatch(hide());
+            setSearchValue('');  // clear search input if you want; optional
         }
     };
 
     useEffect(() => {
-        getProperty(currentPage, limit, 'all');
-    }, [currentPage, limit])
-
-    const searchProperty = async () => {
-        dispatch(show());
-        if (searchValue === "") {
-            getProperty(currentPage, limit, 'all')
-        } else {
-            try {
-                const response = await propertyService.searchProperty(searchValue);
-                setRows(response.data);
-            } catch (error) {
-                console.log('Error updating user:', error.message);
-                Swal.fire({
-                    icon: "error",
-                    title: "Error updating user!",
-                    text: error.message,
-                });
-            } finally {
-                setSearchValue('');
-                dispatch(hide());
-            }
-        }
-    };
+        getProperty(currentPage, limit, user?._id);
+    }, [currentPage, limit, user])
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -263,12 +347,13 @@ const AddNewProperties = () => {
             zipCode: property.zipCode,
             location: property.location,
             availableFor: property.availableFor,
+            addedBy: user._id,
             details: {
                 ...propertyDetails
             },
-            features: {
+            features: [
                 ...propertFeatures
-            },
+            ],
             imgUrl: [],
         };
 
@@ -278,9 +363,7 @@ const AddNewProperties = () => {
 
             reset();
             setPropertyDiv("");
-            if (status === "show") getProperty(currentPage, limit, true);
-            else if (status === "hide") getProperty(currentPage, limit, false);
-            else getProperty(currentPage, limit, "all");
+            getProperty(currentPage, limit, user?._id);
 
             Swal.fire({
                 icon: "success",
@@ -319,24 +402,23 @@ const AddNewProperties = () => {
             zipCode: property.zipCode,
             location: property.location,
             availableFor: property.availableFor,
+            addedBy: user._id,
             details: {
                 ...propertyDetails
             },
-            features: {
+            features: [
                 ...propertFeatures
-            },
-            imgUrl: [],
+            ],
+            imgUrl: filesEdit,
         };
 
         try {
             const data = await propertyService.updateProperty(currentEditProperty, propertyObj);
-            await propertyService.uploadFiles(data.property._id, filesEdit);
+            await propertyService.uploadFiles(data.property._id, files);
 
             reset();
             setPropertyDiv("");
-            if (status === "show") getProperty(currentPage, limit, true);
-            else if (status === "hide") getProperty(currentPage, limit, false);
-            else getProperty(currentPage, limit, "all");
+            getProperty(currentPage, limit, user?._id);
 
             Swal.fire({
                 icon: "success",
@@ -386,6 +468,7 @@ const AddNewProperties = () => {
             bath: data.bath,
             houseSqft: data.houseSqft,
             lotSqft: data.lotSqft,
+            availableFor: data.availableFor,
         });
         setPropertyDetails({
             type: data.details.type,
@@ -393,24 +476,7 @@ const AddNewProperties = () => {
             availablity: data.details.availablity,
             description: data.details.description,
         });
-        setPropertyFeatures({
-            bedrooms: data.features.bedrooms,
-            bathrooms: data.features.bathrooms,
-            appliances: data.features.appliances,
-            interiorFeatures: data.features.interiorFeatures,
-            heatingCooling: data.features.heatingCooling,
-            exterior: data.features.exterior,
-            garage: data.features.garage,
-            landInfo: data.features.landInfo,
-            homeownersAssociation: data.features.homeownersAssociation,
-            schoolInfo: data.features.schoolInfo,
-            rentalInfo: data.features.rentalInfo,
-            amenities: data.features.amenities,
-            otherInfo: data.features.otherInfo,
-            buildingAndConstruction: data.features.buildingAndConstruction,
-            utilities: data.features.utilities,
-            homeFeatures: data.features.homeFeatures,
-        });
+        setPropertyFeatures([...data.features]);
         setFilesEdit(data.imgUrl);
         setCurrentEditProperty(data._id);
     };
@@ -425,10 +491,7 @@ const AddNewProperties = () => {
 
             const updatedFiles = filesEdit.filter(file => file.public_id !== public_id);
             setFilesEdit(updatedFiles);
-
-            if (status === "show") getProperty(currentPage, limit, true);
-            else if (status === "hide") getProperty(currentPage, limit, false);
-            else getProperty(currentPage, limit, "all");
+            getProperty(currentPage, limit, user?._id);
 
             Swal.fire({
                 icon: 'success',
@@ -448,29 +511,34 @@ const AddNewProperties = () => {
     };
 
     const handleDelete = (id) => {
-        Swal.fire({
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success ms-1",
+                cancelButton: "btn btn-danger me-1"
+            },
+            buttonsStyling: false
+        });
+        swalWithBootstrapButtons.fire({
             title: "Are you sure?",
             text: "You won't be able to revert this!",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "No, cancel!",
+            reverseButtons: true
         }).then(async (result) => {
             if (result.isConfirmed) {
                 dispatch(show())
                 try {
                     const response = await propertyService.deleteProperty(id);
+                    getProperty(currentPage, limit, user?._id);
 
-                    if (status === "show") getProperty(currentPage, limit, true);
-                    else if (status === "hide") getProperty(currentPage, limit, false);
-                    else getProperty(currentPage, limit, "all");
-
-                    Swal.fire({
+                    swalWithBootstrapButtons.fire({
                         title: "Deleted!",
-                        text: response.message,
+                        text: "Property has been deleted.",
                         icon: "success"
                     });
+
                 } catch (error) {
                     Swal.fire({
                         icon: "error",
@@ -480,9 +548,17 @@ const AddNewProperties = () => {
                 } finally {
                     dispatch(hide())
                 }
+            } else if (
+                /* Read more about handling dismissals below */
+                result.dismiss === Swal.DismissReason.cancel
+            ) {
+                swalWithBootstrapButtons.fire({
+                    title: "Cancelled",
+                    text: "Property is safe :)",
+                    icon: "error"
+                });
             }
         });
-
     };
 
     const onChange = (name, city) => {
@@ -499,6 +575,65 @@ const AddNewProperties = () => {
         }
     };
 
+
+    const FeatureList = ({ categoryTitle }) => {
+        const category = propertFeatures.find(cat => cat.title.toLowerCase() === categoryTitle.toLowerCase());
+        if (!category || category.list.length === 0) return null;
+
+        return (
+            <div className="d-flex flex-wrap">
+                {chunkArray(category.list, 3).map((chunk, idx) => (
+                    <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
+                        {chunk.map((item, i) => (
+                            <li key={i} className="mt-1 d-flex list-style-bullet justify-content-between">
+                                {item}
+                                <Button
+                                    variant="outline-danger"
+                                    className="py-0 ms-5"
+                                    style={{ height: '25px' }}
+                                    onClick={() => handleDeleteFeature(categoryTitle, i + idx * 10)} // Adjust index to global index in full list
+                                >
+                                    Delete
+                                </Button>
+                            </li>
+                        ))}
+                    </ul>
+                ))}
+            </div>
+        );
+    };
+    const handleDeleteFeature = (featureCategoryTitle, indexToDelete) => {
+        setPropertyFeatures(prevFeatures => {
+            // Map over prevFeatures array and update the matching category
+            return prevFeatures.map(category => {
+                if (category.title.toLowerCase() === featureCategoryTitle.toLowerCase()) {
+                    // Create new list array with item removed at indexToDelete
+                    const updatedList = category.list.filter((_, i) => i !== indexToDelete);
+                    // Return updated category object
+                    return {
+                        ...category,
+                        list: updatedList,
+                    };
+                }
+                // Return category unchanged if title does not match
+                return category;
+            });
+        });
+    };
+    const handleAddFeature = (featureCategoryTitle, newFeature) => {
+        setPropertyFeatures(prevFeatures =>
+            prevFeatures.map(category => {
+                if (category.title.toLowerCase() === featureCategoryTitle.toLowerCase()) {
+                    return {
+                        ...category,
+                        list: [...category.list, newFeature],
+                    };
+                }
+                return category;
+            })
+        );
+    };
+
     return (
         <>
             <Navbar withoutHero={true} />
@@ -508,7 +643,17 @@ const AddNewProperties = () => {
                         {
                             propertyDiv === 'add' || propertyDiv === 'edit' ?
                                 <>
-                                    <h3>Add New Property</h3>
+                                    <h3 className="d-flex justify-content-between">
+                                        Add New Property
+                                        <span
+                                            className="cross-icon"
+                                            onClick={e => {
+                                                setPropertyDiv("")
+                                                reset()
+                                            }} >
+                                            <ImCross />
+                                        </span>
+                                    </h3>
                                     <form className="new-property-form row" onSubmit={propertyDiv === 'edit' ? handleEditSubmit : handleSubmit}>
                                         <div className="col-12 col-md-6 mt-1">
                                             <label htmlFor="name">
@@ -717,32 +862,16 @@ const AddNewProperties = () => {
                                             <Button
                                                 variant="outline-success"
                                                 onClick={e => {
-                                                    setPropertyFeatures({ ...propertFeatures, bedrooms: [...propertFeatures.bedrooms, features.bedrooms] })
-                                                    setFeatures({ ...features, bedrooms: '' })
+                                                    if (features.bedrooms !== '') {
+                                                        handleAddFeature('Bedrooms', features.bedrooms);
+                                                        setFeatures(prev => ({ ...prev, bedrooms: '' }));
+                                                    }
                                                 }}
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex flex-wrap">
-                                                {
-                                                    chunkArray(propertFeatures.bedrooms, 10).map((chunk, idx) => (
-                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
-                                                            {chunk.map((listItem, i) => (
-                                                                <li key={i} className="mt-1 d-flex list-style-bullet justify-content-between">
-                                                                    {listItem}
-                                                                    <Button
-                                                                        variant="outline-danger"
-                                                                        className="py-0 ms-5"
-                                                                        onClick={() => handleDeleteFeature('bedrooms', i)}
-                                                                    >
-                                                                        Delete
-                                                                    </Button>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    ))
-                                                }
-                                            </div>
+
+                                            <FeatureList categoryTitle="Bedrooms" />
                                         </div>
                                         <div className="col-12 mt-1 property-feature">
                                             <label htmlFor="bathroom">
@@ -758,32 +887,15 @@ const AddNewProperties = () => {
                                             <Button
                                                 variant="outline-success"
                                                 onClick={e => {
-                                                    setPropertyFeatures({ ...propertFeatures, bathrooms: [...propertFeatures.bathrooms, features.bathrooms] })
-                                                    setFeatures({ ...features, bathrooms: e.target.value })
+                                                    if (features.bathrooms !== '') {
+                                                        handleAddFeature('Bathrooms', features.bathrooms);
+                                                        setFeatures(prev => ({ ...prev, bathrooms: '' }));
+                                                    }
                                                 }}
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex flex-wrap">
-                                                {
-                                                    chunkArray(propertFeatures.bathrooms, 10).map((chunk, idx) => (
-                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
-                                                            {chunk.map((listItem, i) => (
-                                                                <li key={i} className="mt-1 d-flex list-style-bullet justify-content-between">
-                                                                    {listItem}
-                                                                    <Button
-                                                                        variant="outline-danger"
-                                                                        className="py-0 ms-5"
-                                                                        onClick={() => handleDeleteFeature('bathrooms', i)}
-                                                                    >
-                                                                        Delete
-                                                                    </Button>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    ))
-                                                }
-                                            </div>
+                                            <FeatureList categoryTitle="Bathrooms" />
                                         </div>
                                         <div className="col-12 mt-1 property-feature">
                                             <label htmlFor="appliances">
@@ -799,32 +911,15 @@ const AddNewProperties = () => {
                                             <Button
                                                 variant="outline-success"
                                                 onClick={e => {
-                                                    setPropertyFeatures({ ...propertFeatures, appliances: [...propertFeatures.appliances, features.appliances] })
-                                                    setFeatures({ ...features, appliances: '' })
+                                                    if (features.appliances !== '') {
+                                                        handleAddFeature('Appliances', features.appliances);
+                                                        setFeatures(prev => ({ ...prev, appliances: '' }));
+                                                    }
                                                 }}
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex flex-wrap">
-                                                {
-                                                    chunkArray(propertFeatures.appliances, 10).map((chunk, idx) => (
-                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
-                                                            {chunk.map((listItem, i) => (
-                                                                <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
-                                                                    {listItem}
-                                                                    <Button
-                                                                        variant="outline-danger"
-                                                                        className="py-0 ms-5"
-                                                                        onClick={() => handleDeleteFeature('appliances', i)}
-                                                                    >
-                                                                        Delete
-                                                                    </Button>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    ))
-                                                }
-                                            </div>
+                                            <FeatureList categoryTitle="Appliances" />
                                         </div>
                                         <div className="col-12 mt-1 property-feature">
                                             <label htmlFor="interiorFeatures">
@@ -840,32 +935,15 @@ const AddNewProperties = () => {
                                             <Button
                                                 variant="outline-success"
                                                 onClick={e => {
-                                                    setPropertyFeatures({ ...propertFeatures, interiorFeatures: [...propertFeatures.interiorFeatures, features.interiorFeatures] })
-                                                    setFeatures({ ...features, interiorFeatures: e.target.value })
+                                                    if (features.interiorFeatures !== '') {
+                                                        handleAddFeature('Interior Features', features.interiorFeatures);
+                                                        setFeatures(prev => ({ ...prev, interiorFeatures: '' }));
+                                                    }
                                                 }}
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex flex-wrap">
-                                                {
-                                                    chunkArray(propertFeatures.interiorFeatures, 10).map((chunk, idx) => (
-                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
-                                                            {chunk.map((listItem, i) => (
-                                                                <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
-                                                                    {listItem}
-                                                                    <Button
-                                                                        variant="outline-danger"
-                                                                        className="py-0 ms-5"
-                                                                        onClick={() => handleDeleteFeature('interiorFeatures', i)}
-                                                                    >
-                                                                        Delete
-                                                                    </Button>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    ))
-                                                }
-                                            </div>
+                                            <FeatureList categoryTitle="Interior Features" />
                                         </div>
                                         <div className="col-12 mt-1 property-feature">
                                             <label htmlFor="heatingCooling">
@@ -881,32 +959,15 @@ const AddNewProperties = () => {
                                             <Button
                                                 variant="outline-success"
                                                 onClick={e => {
-                                                    setPropertyFeatures({ ...propertFeatures, heatingCooling: [...propertFeatures.heatingCooling, features.heatingCooling] })
-                                                    setFeatures({ ...features, heatingCooling: '' })
+                                                    if (features.heatingCooling !== '') {
+                                                        handleAddFeature('Heating and Cooling', features.heatingCooling);
+                                                        setFeatures(prev => ({ ...prev, heatingCooling: '' }));
+                                                    }
                                                 }}
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex flex-wrap">
-                                                {
-                                                    chunkArray(propertFeatures.heatingCooling, 10).map((chunk, idx) => (
-                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
-                                                            {chunk.map((listItem, i) => (
-                                                                <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
-                                                                    {listItem}
-                                                                    <Button
-                                                                        variant="outline-danger"
-                                                                        className="py-0 ms-5"
-                                                                        onClick={() => handleDeleteFeature('heatingCooling', i)}
-                                                                    >
-                                                                        Delete
-                                                                    </Button>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    ))
-                                                }
-                                            </div>
+                                            <FeatureList categoryTitle="Heating and Cooling" />
                                         </div>
                                         <div className="col-12 mt-1 property-feature">
                                             <label htmlFor="exterior">
@@ -922,32 +983,15 @@ const AddNewProperties = () => {
                                             <Button
                                                 variant="outline-success"
                                                 onClick={e => {
-                                                    setPropertyFeatures({ ...propertFeatures, exterior: [...propertFeatures.exterior, features.exterior] })
-                                                    setFeatures({ ...features, exterior: '' })
+                                                    if (features.exterior !== '') {
+                                                        handleAddFeature('Exterior and Lot Features', features.exterior);
+                                                        setFeatures(prev => ({ ...prev, exterior: '' }));
+                                                    }
                                                 }}
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex flex-wrap">
-                                                {
-                                                    chunkArray(propertFeatures.exterior, 10).map((chunk, idx) => (
-                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
-                                                            {chunk.map((listItem, i) => (
-                                                                <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
-                                                                    {listItem}
-                                                                    <Button
-                                                                        variant="outline-danger"
-                                                                        className="py-0 ms-5"
-                                                                        onClick={() => handleDeleteFeature('exterior', i)}
-                                                                    >
-                                                                        Delete
-                                                                    </Button>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    ))
-                                                }
-                                            </div>
+                                            <FeatureList categoryTitle="Exterior and Lot Features" />
                                         </div>
                                         <div className="col-12 mt-1 property-feature">
                                             <label htmlFor="garage">
@@ -963,32 +1007,15 @@ const AddNewProperties = () => {
                                             <Button
                                                 variant="outline-success"
                                                 onClick={e => {
-                                                    setPropertyFeatures({ ...propertFeatures, garage: [...propertFeatures.garage, features.garage] })
-                                                    setFeatures({ ...features, garage: '' })
+                                                    if (features.garage !== '') {
+                                                        handleAddFeature('Garage and Parking', features.garage);
+                                                        setFeatures(prev => ({ ...prev, garage: '' }));
+                                                    }
                                                 }}
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex flex-wrap">
-                                                {
-                                                    chunkArray(propertFeatures.garage, 10).map((chunk, idx) => (
-                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
-                                                            {chunk.map((listItem, i) => (
-                                                                <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
-                                                                    {listItem}
-                                                                    <Button
-                                                                        variant="outline-danger"
-                                                                        className="py-0 ms-5"
-                                                                        onClick={() => handleDeleteFeature('garage', i)}
-                                                                    >
-                                                                        Delete
-                                                                    </Button>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    ))
-                                                }
-                                            </div>
+                                            <FeatureList categoryTitle="Garage and Parking" />
                                         </div>
                                         <div className="col-12 mt-1 property-feature">
                                             <label htmlFor="landInfo">
@@ -1004,32 +1031,15 @@ const AddNewProperties = () => {
                                             <Button
                                                 variant="outline-success"
                                                 onClick={e => {
-                                                    setPropertyFeatures({ ...propertFeatures, landInfo: [...propertFeatures.landInfo, features.landInfo] })
-                                                    setFeatures({ ...features, landInfo: '' })
+                                                    if (features.landInfo !== '') {
+                                                        handleAddFeature('Land Info', features.landInfo);
+                                                        setFeatures(prev => ({ ...prev, landInfo: '' }));
+                                                    }
                                                 }}
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex flex-wrap">
-                                                {
-                                                    chunkArray(propertFeatures.landInfo, 10).map((chunk, idx) => (
-                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
-                                                            {chunk.map((listItem, i) => (
-                                                                <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
-                                                                    {listItem}
-                                                                    <Button
-                                                                        variant="outline-danger"
-                                                                        className="py-0 ms-5"
-                                                                        onClick={() => handleDeleteFeature('landInfo', i)}
-                                                                    >
-                                                                        Delete
-                                                                    </Button>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    ))
-                                                }
-                                            </div>
+                                            <FeatureList categoryTitle="Land Info" />
                                         </div>
                                         <div className="col-12 mt-1 property-feature">
                                             <label htmlFor="homeownersAssociation">
@@ -1045,32 +1055,15 @@ const AddNewProperties = () => {
                                             <Button
                                                 variant="outline-success"
                                                 onClick={e => {
-                                                    setPropertyFeatures({ ...propertFeatures, homeownersAssociation: [...propertFeatures.homeownersAssociation, features.homeownersAssociation] })
-                                                    setFeatures({ ...features, homeownersAssociation: '' })
+                                                    if (features.homeownersAssociation !== '') {
+                                                        handleAddFeature('Homeowner Association', features.homeownersAssociation);
+                                                        setFeatures(prev => ({ ...prev, homeownersAssociation: '' }));
+                                                    }
                                                 }}
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex flex-wrap">
-                                                {
-                                                    chunkArray(propertFeatures.homeownersAssociation, 10).map((chunk, idx) => (
-                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
-                                                            {chunk.map((listItem, i) => (
-                                                                <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
-                                                                    {listItem}
-                                                                    <Button
-                                                                        variant="outline-danger"
-                                                                        className="py-0 ms-5"
-                                                                        onClick={() => handleDeleteFeature('homeownersAssociation', i)}
-                                                                    >
-                                                                        Delete
-                                                                    </Button>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    ))
-                                                }
-                                            </div>
+                                            <FeatureList categoryTitle="Homeowner Association" />
                                         </div>
                                         <div className="col-12 mt-1 property-feature">
                                             <label htmlFor="schoolInfo">
@@ -1086,32 +1079,15 @@ const AddNewProperties = () => {
                                             <Button
                                                 variant="outline-success"
                                                 onClick={e => {
-                                                    setPropertyFeatures({ ...propertFeatures, schoolInfo: [...propertFeatures.schoolInfo, features.schoolInfo] })
-                                                    setFeatures({ ...features, schoolInfo: '' })
+                                                    if (features.schoolInfo !== '') {
+                                                        handleAddFeature('School Information', features.schoolInfo);
+                                                        setFeatures(prev => ({ ...prev, schoolInfo: '' }));
+                                                    }
                                                 }}
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex flex-wrap">
-                                                {
-                                                    chunkArray(propertFeatures.schoolInfo, 10).map((chunk, idx) => (
-                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
-                                                            {chunk.map((listItem, i) => (
-                                                                <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
-                                                                    {listItem}
-                                                                    <Button
-                                                                        variant="outline-danger"
-                                                                        className="py-0 ms-5"
-                                                                        onClick={() => handleDeleteFeature('schoolInfo', i)}
-                                                                    >
-                                                                        Delete
-                                                                    </Button>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    ))
-                                                }
-                                            </div>
+                                            <FeatureList categoryTitle="School Information" />
                                         </div>
                                         <div className="col-12 mt-1 property-feature">
                                             <label htmlFor="rentalInfo">
@@ -1127,32 +1103,15 @@ const AddNewProperties = () => {
                                             <Button
                                                 variant="outline-success"
                                                 onClick={e => {
-                                                    setPropertyFeatures({ ...propertFeatures, rentalInfo: [...propertFeatures.rentalInfo, features.rentalInfo] })
-                                                    setFeatures({ ...features, rentalInfo: '' })
+                                                    if (features.rentalInfo !== '') {
+                                                        handleAddFeature('Rental Info', features.rentalInfo);
+                                                        setFeatures(prev => ({ ...prev, rentalInfo: '' }));
+                                                    }
                                                 }}
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex flex-wrap">
-                                                {
-                                                    chunkArray(propertFeatures.rentalInfo, 10).map((chunk, idx) => (
-                                                        <ul key={idx} className="col-12 col-md-6" v>
-                                                            {chunk.map((listItem, i) => (
-                                                                <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
-                                                                    {listItem}
-                                                                    <Button
-                                                                        variant="outline-danger"
-                                                                        className="py-0 ms-5"
-                                                                        onClick={() => handleDeleteFeature('rentalInfo', i)}
-                                                                    >
-                                                                        Delete
-                                                                    </Button>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    ))
-                                                }
-                                            </div>
+                                            <FeatureList categoryTitle="Rental Info" />
                                         </div>
                                         <div className="col-12 mt-1 property-feature">
                                             <label htmlFor="amenities">
@@ -1168,13 +1127,16 @@ const AddNewProperties = () => {
                                             <Button
                                                 variant="outline-success"
                                                 onClick={e => {
-                                                    setPropertyFeatures({ ...propertFeatures, amenities: [...propertFeatures.amenities, features.amenities] })
-                                                    setFeatures({ ...features, amenities: '' })
+                                                    if (features.amenities !== '') {
+                                                        handleAddFeature('Amenities and Community Features', features.amenities);
+                                                        setFeatures(prev => ({ ...prev, amenities: '' }));
+                                                    }
                                                 }}
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex flex-wrap">
+                                            <FeatureList categoryTitle="Amenities and Community Features" />
+                                            {/* <div className="d-flex flex-wrap">
                                                 {
                                                     chunkArray(propertFeatures.amenities, 10).map((chunk, idx) => (
                                                         <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
@@ -1193,7 +1155,7 @@ const AddNewProperties = () => {
                                                         </ul>
                                                     ))
                                                 }
-                                            </div>
+                                            </div> */}
                                         </div>
                                         <div className="col-12 mt-1 property-feature">
                                             <label htmlFor="otherInfo">
@@ -1209,32 +1171,15 @@ const AddNewProperties = () => {
                                             <Button
                                                 variant="outline-success"
                                                 onClick={e => {
-                                                    setPropertyFeatures({ ...propertFeatures, otherInfo: [...propertFeatures.otherInfo, features.otherInfo] })
-                                                    setFeatures({ ...features, otherInfo: '' })
+                                                    if (features.otherInfo !== '') {
+                                                        handleAddFeature('Other Property Info', features.otherInfo);
+                                                        setFeatures(prev => ({ ...prev, otherInfo: '' }));
+                                                    }
                                                 }}
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex flex-wrap">
-                                                {
-                                                    chunkArray(propertFeatures.otherInfo, 10).map((chunk, idx) => (
-                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
-                                                            {chunk.map((listItem, i) => (
-                                                                <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
-                                                                    {listItem}
-                                                                    <Button
-                                                                        variant="outline-danger"
-                                                                        className="py-0 ms-5"
-                                                                        onClick={() => handleDeleteFeature('otherInfo', i)}
-                                                                    >
-                                                                        Delete
-                                                                    </Button>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    ))
-                                                }
-                                            </div>
+                                            <FeatureList categoryTitle="Other Property Info" />
                                         </div>
                                         <div className="col-12 mt-1 property-feature">
                                             <label htmlFor="buildingAndConstruction">
@@ -1250,32 +1195,15 @@ const AddNewProperties = () => {
                                             <Button
                                                 variant="outline-success"
                                                 onClick={e => {
-                                                    setPropertyFeatures({ ...propertFeatures, buildingAndConstruction: [...propertFeatures.buildingAndConstruction, features.buildingAndConstruction] })
-                                                    setFeatures({ ...features, buildingAndConstruction: '' })
+                                                    if (features.buildingAndConstruction !== '') {
+                                                        handleAddFeature('Building and Construction', features.buildingAndConstruction);
+                                                        setFeatures(prev => ({ ...prev, buildingAndConstruction: '' }));
+                                                    }
                                                 }}
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex flex-wrap">
-                                                {
-                                                    chunkArray(propertFeatures.buildingAndConstruction, 10).map((chunk, idx) => (
-                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
-                                                            {chunk.map((listItem, i) => (
-                                                                <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
-                                                                    {listItem}
-                                                                    <Button
-                                                                        variant="outline-danger"
-                                                                        className="py-0 ms-5"
-                                                                        onClick={() => handleDeleteFeature('buildingAndConstruction', i)}
-                                                                    >
-                                                                        Delete
-                                                                    </Button>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    ))
-                                                }
-                                            </div>
+                                            <FeatureList categoryTitle="Building and Construction" />
                                         </div>
                                         <div className="col-12 mt-1 property-feature">
                                             <label htmlFor="utilities">
@@ -1291,32 +1219,15 @@ const AddNewProperties = () => {
                                             <Button
                                                 variant="outline-success"
                                                 onClick={e => {
-                                                    setPropertyFeatures({ ...propertFeatures, utilities: [...propertFeatures.utilities, features.utilities] })
-                                                    setFeatures({ ...features, utilities: '' })
+                                                    if (features.utilities !== '') {
+                                                        handleAddFeature('Utilities', features.utilities);
+                                                        setFeatures(prev => ({ ...prev, utilities: '' }));
+                                                    }
                                                 }}
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex flex-wrap">
-                                                {
-                                                    chunkArray(propertFeatures.utilities, 10).map((chunk, idx) => (
-                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
-                                                            {chunk.map((listItem, i) => (
-                                                                <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
-                                                                    {listItem}
-                                                                    <Button
-                                                                        variant="outline-danger"
-                                                                        className="py-0 ms-5"
-                                                                        onClick={() => handleDeleteFeature('utilities', i)}
-                                                                    >
-                                                                        Delete
-                                                                    </Button>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    ))
-                                                }
-                                            </div>
+                                            <FeatureList categoryTitle="Utilities" />
                                         </div>
                                         <div className="col-12 mt-1 property-feature">
                                             <label htmlFor="homeFeatures">
@@ -1332,32 +1243,15 @@ const AddNewProperties = () => {
                                             <Button
                                                 variant="outline-success"
                                                 onClick={e => {
-                                                    setPropertyFeatures({ ...propertFeatures, homeFeatures: [...propertFeatures.homeFeatures, features.homeFeatures] })
-                                                    setFeatures({ ...features, homeFeatures: '' })
+                                                    if (features.homeFeatures !== '') {
+                                                        handleAddFeature('Home Features', features.homeFeatures);
+                                                        setFeatures(prev => ({ ...prev, homeFeatures: '' }));
+                                                    }
                                                 }}
                                             >
                                                 Add
                                             </Button>
-                                            <div className="d-flex flex-wrap">
-                                                {
-                                                    chunkArray(propertFeatures.homeFeatures, 10).map((chunk, idx) => (
-                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
-                                                            {chunk.map((listItem, i) => (
-                                                                <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
-                                                                    {listItem}
-                                                                    <Button
-                                                                        variant="outline-danger"
-                                                                        className="py-0 ms-5"
-                                                                        onClick={() => handleDeleteFeature('homeFeatures', i)}
-                                                                    >
-                                                                        Delete
-                                                                    </Button>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    ))
-                                                }
-                                            </div>
+                                            <FeatureList categoryTitle="Home Features" />
                                         </div>
                                         <div className="col-12 mt-1">
                                             <label htmlFor="propertyType">
@@ -1388,7 +1282,6 @@ const AddNewProperties = () => {
                                                     )
                                                 }) :
                                                 <></>}
-
                                             {files && files.map((v, i) => (
                                                 <div key={i}>
                                                     <Image
@@ -1443,7 +1336,7 @@ const AddNewProperties = () => {
                                 <>
                                     <div className="button-search-div">
                                         <Space>
-                                            <Button variant="outline-dark" className="all-button" onClick={e => getProperty(currentPage, limit, 'all')}>All Properties</Button>
+                                            <Button variant="outline-dark" className="all-button" onClick={e => getProperty(currentPage, limit, user?._id)}>All Properties</Button>
                                             <div className="search-div-property-res">
                                                 <input
                                                     required
@@ -1456,7 +1349,7 @@ const AddNewProperties = () => {
                                                 <Button
                                                     variant="outline-secondary"
                                                     className="search-button"
-                                                    onClick={searchProperty}
+                                                    onClick={e => getProperty(currentPage, limit, user?._id, searchValue)}
                                                 >
                                                     Search
                                                 </Button>
@@ -1475,7 +1368,7 @@ const AddNewProperties = () => {
                                                 <Button
                                                     variant="outline-secondary"
                                                     className="search-button"
-                                                    onClick={searchProperty}
+                                                    onClick={e => getProperty(currentPage, limit, user?._id, searchValue)}
                                                 >
                                                     Search
                                                 </Button>

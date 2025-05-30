@@ -7,16 +7,16 @@ import { FaHouseChimney, FaClockRotateLeft, FaHammer } from "react-icons/fa6";
 import { BsHouse } from "react-icons/bs";
 import { SlCalender } from "react-icons/sl";
 import { MdOutlineKeyboardArrowUp, MdOutlineKeyboardArrowDown } from "react-icons/md";
-import Img1 from "../../Assets/Product/img1.webp"
-import Img2 from "../../Assets/Product/img2.webp"
-import Img3 from "../../Assets/Product/img3.webp"
-import Img4 from "../../Assets/Product/img4.webp"
-import Img5 from "../../Assets/Product/img5.webp"
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Tooltip } from 'antd';
 import { chunkArray } from "../../Utils";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { show, hide } from "../../Store/spinnerSlice";
+import Swal from "sweetalert2";
+import propertyService from "../../Services/property";
+import moment from "moment";
+import authService from "../../Services/auth";
 
 const CustomPrevArrow = ({ onClick }) => (
     <div className="product-carousel-arrows left-arrow" onClick={onClick}>
@@ -31,15 +31,85 @@ const CustomNextArrow = ({ onClick }) => (
 );
 
 const Property = () => {
+    const dispatch = useDispatch();
+    const [data, setData] = useState({});
+    const [brooker, setBrooker] = useState({});
+    const params = useParams();
+
+    const { user } = useSelector(state => state.auth);
+
+    const [contactForm1, setContactForm1] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        date: moment().format('YYYY-MM-DD'),
+        message: '',
+    })
+
+    const [contactForm2, setContactForm2] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        date: moment().format('YYYY-MM-DD'),
+        message: '',
+    })
+
+    const getProperty = async (_id) => {
+        dispatch(show());
+        try {
+            // Build the filter parameters for the unified API
+            const filters = {};
+
+            if (_id && _id.trim() !== '') {
+                filters._id = _id.trim();
+            }
+
+            const response = await propertyService.getProperties(filters);
+            if (response?.properties[0]) {
+                getBrooker(response.properties[0].addedBy)
+            }
+            setData(response?.properties[0]);
+
+
+        } catch (error) {
+            console.log('Error fetching properties:', error.message);
+            Swal.fire({
+                icon: "error",
+                title: "Error fetching properties!",
+                text: error.message,
+            });
+        } finally {
+            dispatch(hide());
+        }
+    };
+
+    const getBrooker = async (_id) => {
+        dispatch(show());
+        try {
+            const response = await authService.getSpecificUser(_id);
+
+            setBrooker(response.user);
+
+        } catch (error) {
+            console.log('Error fetching properties:', error.message);
+            Swal.fire({
+                icon: "error",
+                title: "Error fetching properties!",
+                text: error.message,
+            });
+        } finally {
+            dispatch(hide());
+        }
+    };
+
+    useEffect(() => {
+        getProperty(params.id)
+    }, []);
 
     const [seeMore, setSeeMore] = useState(false);
     const [seeMoreFeatures, setSeeMoreFeatures] = useState(false);
     const [seeMoreForm, setSeeMoreForm] = useState(false);
-    let content = ` Wonderful area of SW Austin! Close to everything! Shopping, excellent schools nearby, parks,
-    trails, restaurants, major roads nearby, about 20 minutes to downtown area and more! Airport 
-    not far! Great floorplan! Home office/study downstairs, 3 bedrooms and 2 baths upstairs, 2 
-    car garage, quiet culdesac, open kitchen/great room concept, high ceilings, lots of natural 
-    light, large backyard/patio and more!`
+
     let formText = <>
         By proceeding, you consent to receive calls and texts at the number you provided, including
         marketing by autodialer and prerecorded and artificial voice, and email, from realtor.com
@@ -56,167 +126,54 @@ const Property = () => {
     and others about your inquiry and other home-related matters, but not as a condition of any purchase. 
     You also agree to our Terms of Use, and to our Privacy Policy 
     regarding the information relating to you. Msg/data rates may apply. This consent applies even if you are on a corporate, state or national Do Not Call list.`
-    const features = [
-        {
-            title: 'Bedrooms',
-            list: ['Bedrooms: 3'],
-        },
-        {
-            title: 'Bathrooms',
-            list: ['Total Bathrooms: 3', 'Full Bathrooms: 2', '1/2 Bathrooms: 1'],
-        },
-        {
-            title: 'Interior Features',
-            list: [
-                'Bookcases',
-                'Ceiling Fan(s)',
-                'Vaulted Ceiling(s)',
-                'Multiple Dining Areas',
-                'Multiple Living Areas',
-                'Pantry',
-                'Soaking Tub',
-                'Flooring: Carpet, Laminate, Tile',
-                'Window Features: Double Pane Windows',
-            ],
-        },
-        {
-            title: 'Appliances',
-            list: [
-                'Dishwasher',
-                'Disposal',
-                'Microwave',
-                'Electric Oven',
-                'Refrigerator',
-                'Vented Exhaust Fan',
-                'Laundry Features: Laundry Room, Lower Level',
-            ],
-        },
-        {
-            title: 'Heating and Cooling',
-            list: [
-                'Cooling Features: Ceiling Fan(s), Central Air',
-                'Fireplace Features: Family Room',
-                'Heating Features: Central',
-                'Number of Fireplaces: 1',
-            ],
-        },
-        {
-            title: 'Exterior and Lot Features',
-            list: [
-                'Rain Gutters',
-                'Fencing: Back Yard, Wood',
-                'Patio And Porch Features: Deck, Porch',
-            ],
-        },
-        {
-            title: 'Garage and Parking',
-            list: [
-                'Covered Spaces: 2',
-                'Garage Spaces: 2',
-                'Parking Features: Door-Single',
-                'Parking Total: 2',
-            ],
-        },
-        {
-            title: 'Land Info',
-            list: [
-                'Lot Description: Back Yard, Cul-De-Sac, Curbs, Front Yard',
-                'Lot Size Acres: 0.183',
-                'Lot Size Square Feet: 7971',
-            ],
-        },
-        {
-            title: 'Homeowners Association',
-            list: [
-                'Association: No',
-                'Calculated Total Monthly Association Fees: 0',
-                'Pets Allowed: No',
-            ],
-        },
-        {
-            title: 'School Information',
-            list: [
-                'Elementary School: Mills',
-                'High School: Bowie',
-                'High School District: Austin ISD',
-                'Middle School: Gorzycki',
-                'School District: Austin ISD',
-            ],
-        },
-        {
-            title: 'Rental Info',
-            list: [
-                'Lease Term: Negotiable',
-                'Max Lease Months: 24',
-                'Min Lease Months: 12',
-                'Tenant Pays: All Utilities, Cable TV, Electricity, Hot Water, Pest Control, Sewer, Trash Collection, Water',
-                'Security Deposit: 3100',
-                'Application Fee: 65',
-            ],
-        },
-        {
-            title: 'Amenities and Community Features',
-            list: [
-                'Community Features: Cluster Mailbox, Curbs, Park, Playground, Underground Utilities',
-            ],
-        },
-        {
-            title: 'Other Property Info',
-            list: [
-                'Tax Block: 32',
-                'Source Listing Status: Active',
-                'County: Travis',
-                'Availability Date: 2025-07-01',
-                'Directions: South on MoPac past the river, exit Davis Lane, go west to light at Beckett, turn left onto Beckett, turn right onto TaylorCrest, turn onto Janabyrd Dr and left onto Janabyrd Cove',
-                'Source Property Type: Residential Lease',
-                'Area: SWW',
-                'Source Neighborhood: Village At Western Oaks Sec 15',
-                'Owner Pays: Association Fees, Taxes',
-                'Parcel Number: 04183813230000',
-                'Subdivision: Village At Western Oaks Sec 15',
-                'Flood Plain: No',
-                'Property Subtype: Single Family Residence',
-                'Source System Name: C2C',
-            ],
-        },
-        {
-            title: 'Building and Construction',
-            list: [
-                'Total Square Feet Living: 2387',
-                'Year Built: 2000',
-                'Construction Materials: Brick',
-                'Direction Faces: East',
-                'Foundation Details: Slab',
-                'Levels: Two',
-                'Living Area Source: Public Records',
-                'Property Age: 25',
-                'Property Condition: Resale',
-                'Roof: Composition',
-                'House Style: Entry Steps',
-                'Total Area Sqft: 2387',
-            ],
-        },
-        {
-            title: 'Utilities',
-            list: [
-                'Sewer: Public Sewer',
-                'Cable Available',
-                'Electricity Connected',
-                'Phone Available',
-                'Sewer Connected',
-                'Underground Utilities',
-                'Water Connected',
-                'Water Source: Public',
-            ],
-        },
-    ];
+
+    const handleSubmit = async (e, form) => {
+        e.preventDefault()
+
+        const obj = form === 'form1' ? contactForm1 : contactForm2;
+        dispatch(show());
+        try {
+            const response = await authService.messageAboutProperty(obj, user?._id, data);
+
+            console.log('response', response);
+
+            Swal.fire({
+                icon: "success",
+                title: "Sent!",
+                text: response.message,
+            });
+        } catch (error) {
+            console.log('Error fetching properties:', error.message);
+            Swal.fire({
+                icon: "error",
+                title: "Error fetching properties!",
+                text: error.message,
+            });
+        } finally {
+            dispatch(hide());
+            setContactForm1({
+                name: '',
+                email: '',
+                phone: '',
+                date: moment().format('YYYY-MM-DD'),
+                message: '',
+            });
+            setContactForm2({
+                name: '',
+                email: '',
+                phone: '',
+                date: moment().format('YYYY-MM-DD'),
+                message: '',
+            });
+        }
+    }
 
     return (
         <>
             <Navbar withoutHero={true} />
             <div className="main-property-div">
                 <div className="contact-btn-div-res">
-                    <button className="contact-btn-house-res">Contact Agent</button>
+                    <a href={'#bookerDetails'} className="contact-btn-house-res">Contact Agent</a>
                 </div>
                 <Container className="property-container">
                     <div className="main-content-div">
@@ -231,66 +188,46 @@ const Property = () => {
                                 prevArrow={<CustomPrevArrow />}
                                 nextArrow={<CustomNextArrow />}
                             >
-                                <div className="product-carousel-slide">
-                                    <Image
-                                        width={'100%'}
-                                        height={'100%'}
-                                        src={Img1}
-                                    />
-                                </div>
-                                <div className="product-carousel-slide">
-                                    <Image
-                                        width={'100%'}
-                                        height={'100%'}
-                                        src={Img2}
-                                    />
-                                </div>
-                                <div className="product-carousel-slide">
-                                    <Image
-                                        width={'100%'}
-                                        height={'100%'}
-                                        src={Img3}
-                                    />
-                                </div>
-                                <div className="product-carousel-slide">
-                                    <Image
-                                        width={'100%'}
-                                        height={'100%'}
-                                        src={Img4}
-                                    />
-                                </div>
-                                <div className="product-carousel-slide">
-                                    <Image
-                                        width={'100%'}
-                                        height={'100%'}
-                                        src={Img5}
-                                    />
-                                </div>
+                                {
+                                    data?.imgUrl?.map(images => (
+                                        <div className="product-carousel-slide">
+                                            <Image
+                                                width={'100%'}
+                                                height={'100%'}
+                                                src={images.url}
+                                            />
+                                        </div>
+                                    ))
+                                }
                             </Carousel>
                         </div>
-                        <p className="mt-2 d-flex align-items-center">
-                            <span className="green-dot mb-0 me-2 font-blalck"></span>
-                            For Rent
+                        <p className="mt-2 d-flex align-items-center text-capitalize">
+                            <span className="green-dot mb-0 me-2"></span>
+                            For {data?.availableFor}
                         </p>
                         <div className="d-flex">
                             <div className="house-details-div">
                                 <h2 className="house-price">
-                                    $ 2500 <span> /mo</span>
+                                    {
+                                        data?.availableFor === 'rent' ?
+                                            <>$ {data?.price} <span> /mo</span></> :
+                                            `$ ${data?.price}`
+                                    }
                                 </h2>
                                 <p className="house-structure-details">
-                                    <span className="me-1">3</span> bed
-                                    <span className="ms-3 me-1">2.5</span> bath
-                                    <span className="ms-3 me-1">2,145</span> sqft
-                                    <span className="ms-3 me-1">2,145</span> sqft
+                                    <span className="me-1">{data?.bed}</span> bed
+                                    <span className="ms-3 me-1">{data?.bath}</span> bath
+                                    <span className="ms-3 me-1">{data?.houseSqft}</span> sqft
+                                    <span className="ms-3 me-1">{data?.lotSqft}</span> sqft lot
                                 </p>
                                 <h2 className="house-address">
-                                    9104 Janabyrd Cv, Austin, TX 78749
+                                    {data?.address}
                                 </h2>
                             </div>
                             <div className="house-location-div">
                                 <iframe
                                     title="House Location"
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3620.276782676497!2d67.02406541491316!3d24.945867984023!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3eb33fb9c3e1b913%3A0xe13f66f906624934!2sBlock%201%2C%20Nazimabad%2C%20Karachi!5e0!3m2!1sen!2s!4v1684981225694!5m2!1sen!2s"
+                                    src={data?.location}
                                     width="100%"
                                     height="100%"
                                     style={{ border: 0 }}
@@ -310,28 +247,18 @@ const Property = () => {
                             <div>
                                 <BsHouse size={28} />
                                 <p className="ms-2 mb-0">
-                                    <span>
-                                        Single Family
+                                    <span className="text-capitalize">
+                                        {data?.details?.type}
                                     </span>
                                     <br />
                                     Property type
                                 </p>
                             </div>
                             <div>
-                                <FaClockRotateLeft size={28} />
-                                <p className="ms-2 mb-0">
-                                    <span>
-                                        Today
-                                    </span>
-                                    <br />
-                                    Last Updated
-                                </p>
-                            </div>
-                            <div>
                                 <FaHammer size={28} />
                                 <p className="ms-2 mb-0">
-                                    <span>
-                                        2000
+                                    <span className="text-capitalize">
+                                        {data?.details?.yearBuilt}
                                     </span>
                                     <br />
                                     Year Built
@@ -340,8 +267,8 @@ const Property = () => {
                             <div>
                                 <SlCalender size={28} />
                                 <p className="ms-2 mb-0">
-                                    <span>
-                                        01 Jul
+                                    <span className="text-capitalize">
+                                        {moment(data?.details?.availablity).format('MMMM DD')}
                                     </span>
                                     <br />
                                     Availablity
@@ -349,7 +276,7 @@ const Property = () => {
                             </div>
                         </div>
                         <p className={`mt-4 mb-0`}>
-                            {content.length > 300 ? (seeMore ? content : content.slice(0, 300) + '...') : content}
+                            {data?.details?.description?.length > 300 ? (seeMore ? data?.details?.description : data?.details?.description?.slice(0, 300) + '...') : data?.details?.description}
                         </p>
                         <p onClick={e => setSeeMore(!seeMore)} className="see-more-btn">
                             {
@@ -365,18 +292,18 @@ const Property = () => {
                             }
                         </p>
                         <div className="d-flex justify-content-center">
-                            <button className="contact-btn-house">Contact Agent</button>
+                            <a href={'#bookerDetails'} className="contact-btn-house">Contact Agent</a>
                         </div>
                         <h2 className="house-hd">
                             Features
                         </h2>
                         {
-                            seeMoreFeatures ? features.map(value => (
+                            seeMoreFeatures ? data?.features?.map(value => value.list.length > 0 && (
                                 <div className="p-3" key={value.title}>
                                     <h3 className="features-sub-hd">{value.title}</h3>
                                     <div className="feature-list-div">
                                         {
-                                            chunkArray(value.list, 5).map((chunk, idx) => (
+                                            chunkArray(value.list, 3).map((chunk, idx) => (
                                                 <ul className="feature-list" key={idx}>
                                                     {chunk.map((listItem, i) => (
                                                         <li key={i}>{listItem}</li>
@@ -386,12 +313,12 @@ const Property = () => {
                                         }
                                     </div>
                                 </div>
-                            )) : features.slice(0, 1).map(value => (
+                            )) : data?.features?.slice(0, 1).map(value => (
                                 <div className="p-3" key={value.title}>
                                     <h3 className="features-sub-hd">{value.title}</h3>
                                     <div className="feature-list-div">
                                         {
-                                            chunkArray(value.list, 5).map((chunk, idx) => (
+                                            chunkArray(value.list, 3).map((chunk, idx) => (
                                                 <ul className="feature-list" key={idx}>
                                                     {chunk.map((listItem, i) => (
                                                         <li key={i}>{listItem}</li>
@@ -418,22 +345,56 @@ const Property = () => {
                         </p>
                     </div>
                     <div className="get-quote-div">
-                        <form className="get-quote-form">
+                        <form className="get-quote-form" onSubmit={e => handleSubmit(e, 'form1')}>
                             <h3>More about this property</h3>
                             <label htmlFor="full-name">Full Name*</label>
-                            <input type="text" id="full-name" placeholder="Enter your name" />
+                            <input
+                                type="text"
+                                id="full-name"
+                                placeholder="Enter your name"
+                                value={contactForm1.name}
+                                onChange={e => setContactForm1({ ...contactForm1, name: e.target.value })}
+                                required
+                            />
 
                             <label htmlFor="email">Email*</label>
-                            <input type="email" id="email" placeholder="Enter your email" />
+                            <input
+                                type="email"
+                                id="email"
+                                placeholder="Enter your email"
+                                value={contactForm1.email}
+                                onChange={e => setContactForm1({ ...contactForm1, email: e.target.value })}
+                                required
+                            />
 
                             <label htmlFor="phone">Phone</label>
-                            <input type="text" id="phone" placeholder="Enter your phone" />
+                            <input
+                                type="text"
+                                id="phone"
+                                placeholder="Enter your phone"
+                                value={contactForm1.phone}
+                                onChange={e => setContactForm1({ ...contactForm1, phone: e.target.value })}
+                                required
+                            />
 
                             <label htmlFor="date">Desired move-in Date*</label>
-                            <input type="date" id="date" />
+                            <input
+                                type="date"
+                                id="date"
+                                value={contactForm1.date}
+                                onChange={e => setContactForm1({ ...contactForm1, date: e.target.value })}
+                                required
+                            />
 
-                            <label htmlFor="message">Message</label>
-                            <textarea name="message" id="message" placeholder="Enter your Message"></textarea>
+                            <label htmlFor="message">Message*</label>
+                            <textarea
+                                name="message"
+                                id="message"
+                                placeholder="Enter your Message"
+                                value={contactForm1.message}
+                                onChange={e => setContactForm1({ ...contactForm1, message: e.target.value })}
+                                required
+                            ></textarea>
 
                             <button type="submit">Send</button>
                             <p>
@@ -454,22 +415,56 @@ const Property = () => {
                         <h2>Learn more about this property</h2>
                         <div className="contact-form-div">
                             <div>
-                                <form className="get-quote-form get-quote-form-2">
+                                <form className="get-quote-form get-quote-form-2" onSubmit={e => handleSubmit(e, 'form2')}>
                                     <h3>More about this property</h3>
                                     <label htmlFor="full-name">Full Name*</label>
-                                    <input type="text" id="full-name" placeholder="Enter your name" />
+                                    <input
+                                        type="text"
+                                        id="full-name"
+                                        placeholder="Enter your name"
+                                        value={contactForm2.name}
+                                        onChange={e => setContactForm2({ ...contactForm2, name: e.target.value })}
+                                        required
+                                    />
 
                                     <label htmlFor="email">Email*</label>
-                                    <input type="email" id="email" placeholder="Enter your email" />
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        placeholder="Enter your email"
+                                        value={contactForm2.email}
+                                        onChange={e => setContactForm2({ ...contactForm2, email: e.target.value })}
+                                        required
+                                    />
 
                                     <label htmlFor="phone">Phone</label>
-                                    <input type="text" id="phone" placeholder="Enter your phone" />
+                                    <input
+                                        type="text"
+                                        id="phone"
+                                        placeholder="Enter your phone"
+                                        value={contactForm2.phone}
+                                        onChange={e => setContactForm2({ ...contactForm2, phone: e.target.value })}
+                                        required
+                                    />
 
                                     <label htmlFor="date">Desired move-in Date*</label>
-                                    <input type="date" id="date" />
+                                    <input
+                                        type="date"
+                                        id="date"
+                                        value={contactForm2.date}
+                                        onChange={e => setContactForm2({ ...contactForm2, date: e.target.value })}
+                                        required
+                                    />
 
                                     <label htmlFor="message">Message</label>
-                                    <textarea name="message" id="message" placeholder="Enter your Message"></textarea>
+                                    <textarea
+                                        name="message"
+                                        id="message"
+                                        placeholder="Enter your Message"
+                                        value={contactForm2.message}
+                                        onChange={e => setContactForm2({ ...contactForm2, message: e.target.value })}
+                                        required
+                                    ></textarea>
 
                                     <button type="submit">Send</button>
                                     <p>
@@ -478,41 +473,41 @@ const Property = () => {
                                 </form>
                             </div>
                             <div>
-                                <img src={Img1} alt="" />
+                                <img src={data?.imgUrl && data?.imgUrl[0]?.url} alt={data?.imgUrl && data?.imgUrl[0]?.url} />
                             </div>
                         </div>
                     </div>
-                    <div className="agent-details-div">
+                    <div className="agent-details-div" id="bookerDetails">
                         <h3 className="text-center">Broker Details</h3>
                         <div>
-                            <p>
+                            <div>
                                 <p>
                                     Broker Name:
                                 </p>
-                                <p className="agent-detail">Sualeh Siddiqui</p>
-                            </p>
-                            <p>
+                                <p className="agent-detail text-capitalize">{brooker?.name}</p>
+                            </div>
+                            <div>
                                 <p>
                                     Broker Location:
                                 </p>
-                                <p className="agent-detail">AUSTIN, TX</p>
-                            </p>
-                            <p>
+                                <p className="agent-detail">{brooker?.address}</p>
+                            </div>
+                            <div>
                                 <p>
                                     Broker Phone:
                                 </p>
-                                <p className="agent-detail">(918) 968-1145</p>
-                            </p>
-                            <p>
+                                <Link to={`tel:${brooker?.phone}`} className="agent-detail">{brooker?.phone}</Link>
+                            </div>
+                            <div>
                                 <p>
                                     Broker Email:
                                 </p>
-                                <p className="agent-detail">SualehSiddiqui@gmail.com</p>
-                            </p>
+                                <Link to={`mailto:${brooker?.email}`} className="agent-detail">{brooker?.email}</Link>
+                            </div>
                         </div>
                     </div>
-                </Container>
-            </div>
+                </Container >
+            </div >
             <Footer />
         </>
     )

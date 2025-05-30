@@ -1,14 +1,24 @@
 import "./style.css";
 import { Container } from 'react-bootstrap';
 import { Footer, Navbar, Table } from '../../Components';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal } from "antd";
 import { Link } from "react-router-dom";
+import authService from "../../Services/auth";
+import { useDispatch, useSelector } from "react-redux";
+import { show, hide } from "../../Store/spinnerSlice";
+import Swal from "sweetalert2";
+
 
 const Message = () => {
+    const dispatch = useDispatch();
+
     const [totalMessages, setTotalMessages] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const [limit, setLimit] = useState(25);
+    const { user, isChecking, status } = useSelector(state => state.auth);
+
+    const [rows, setRows] = useState([])
 
     const columns = [
         {
@@ -17,39 +27,25 @@ const Message = () => {
             key: 'name',
         },
         {
-            name: "Property Name",
-            style: { width: "25%", cursor: 'pointer' },
-            key: 'property.title',
-        },
-        {
             name: "Message",
             style: { width: "50%", cursor: 'pointer' },
             key: 'message',
             limit: 30
         },
+        {
+            name: "Delieverd",
+            style: { width: "25%", cursor: 'pointer', color: '#454444' },
+            key: 'createdAt',
+        },
     ];
     const actions = [
         {
             name: "Delete",
-            handler: (row) => console.log(row._id),
+            handler: (row) => handleDelete(user?._id, row._id),
             className: "bill-buttons",
             variant: 'outline-danger',
             style: { width: '10%' }
         },
-    ];
-    const rows = [
-        {
-            _id: 'abcd1234',
-            name: 'Sualeh Siddiqui',
-            email: 'sualehsiddiqui@gmail.com',
-            phone: '03104568912',
-            message: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur expedita blanditiis ad at numquam, pariatur voluptatibus vitae ipsa ea, deleniti aliquam cumque facilis voluptates quam quo aperiam incidunt unde quis.',
-            property: {
-                title: 'Abcd',
-                address: '9104 Janabyrd Cv, Austin, TX 78749',
-                _id: 'abdfhstcmskjhn8923890',
-            }
-        }
     ];
 
     const [open, setOpen] = useState(false);
@@ -61,9 +57,97 @@ const Message = () => {
     };
 
     const handleRowClick = (row) => {
+        if (!row.read) markAsread(user?._id, row._id)
         setSelectedMessage(row);
         setOpen(true)
     };
+
+    const getMessages = async (pageNo, limit, id) => {
+        dispatch(show());
+        try {
+            const response = await authService.getAllMessages(pageNo, limit, id);
+
+            setTotalMessages(response.totalMessages)
+
+            setRows(response.messages);
+
+        } catch (error) {
+            console.log('Error fetching properties:', error.message);
+            Swal.fire({
+                icon: "error",
+                title: "Error fetching properties!",
+                text: error.message,
+            });
+        } finally {
+            dispatch(hide());
+        }
+    };
+
+    const handleDelete = async (userId, messageId) => {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success ms-1",
+                cancelButton: "btn btn-danger me-1"
+            },
+            buttonsStyling: false
+        });
+        swalWithBootstrapButtons.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "No, cancel!",
+            reverseButtons: true
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                dispatch(show());
+                try {
+                    await authService.deleteMessage(userId, messageId);
+
+                    swalWithBootstrapButtons.fire({
+                        title: "Deleted!",
+                        text: "Message has been deleted.",
+                        icon: "success"
+                    });
+
+                } catch (error) {
+                    console.log('Error fetching properties:', error.message);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error fetching properties!",
+                        text: error.message,
+                    });
+                } finally {
+                    getMessages(currentPage, limit, userId)
+                    dispatch(hide());
+                }
+            } else if (
+                /* Read more about handling dismissals below */
+                result.dismiss === Swal.DismissReason.cancel
+            ) {
+                swalWithBootstrapButtons.fire({
+                    title: "Cancelled",
+                    text: "Message is safe :)",
+                    icon: "error"
+                });
+            }
+        });
+    }
+
+    const markAsread = async (userId, messageId) => {
+        try {
+            await authService.markAsRead(userId, messageId);
+        } catch (error) {
+            console.log('Error fetching properties:', error.message);
+        } finally {
+            getMessages(currentPage, limit, userId);
+        }
+    }
+
+    useEffect(() => {
+        if (!isChecking && status) getMessages(undefined, undefined, user?._id);
+    }, [user, isChecking, status]);
 
     return (
         <>
