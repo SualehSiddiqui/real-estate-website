@@ -13,10 +13,10 @@ import Swal from "sweetalert2";
 const SignupAgent = () => {
     const dispatch = useDispatch();
     const user = useSelector(state => state.auth.user);
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     useEffect(() => {
         if (user) {
-            navigate("/home")
+            navigate("/add-new-properties");
         }
     }, [user, navigate]);
 

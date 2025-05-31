@@ -36,7 +36,6 @@ const Property = () => {
     const [brooker, setBrooker] = useState({});
     const params = useParams();
 
-    const { user } = useSelector(state => state.auth);
 
     const [contactForm1, setContactForm1] = useState({
         name: '',
@@ -131,9 +130,10 @@ const Property = () => {
         e.preventDefault()
 
         const obj = form === 'form1' ? contactForm1 : contactForm2;
+        console.log(obj, data?.addedBy, data)
         dispatch(show());
         try {
-            const response = await authService.messageAboutProperty(obj, user?._id, data);
+            const response = await authService.messageAboutProperty(obj, data?.addedBy, data);
 
             console.log('response', response);
 
@@ -367,7 +367,7 @@ const Property = () => {
                                 required
                             />
 
-                            <label htmlFor="phone">Phone</label>
+                            <label htmlFor="phone">Phone*</label>
                             <input
                                 type="text"
                                 id="phone"
@@ -437,7 +437,7 @@ const Property = () => {
                                         required
                                     />
 
-                                    <label htmlFor="phone">Phone</label>
+                                    <label htmlFor="phone">Phone*</label>
                                     <input
                                         type="text"
                                         id="phone"

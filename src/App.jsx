@@ -49,7 +49,7 @@ function App() {
 
   return (
     <>
-      {/* <ScrollToTop /> */}
+      <ScrollToTop />
       {spinnerStatus && <Spinner />}
       <Outlet />
     </>

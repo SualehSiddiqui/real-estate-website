@@ -82,11 +82,6 @@ function NavbarComp({ withoutHero }) {
 
         } catch (error) {
             console.log('Error fetching properties:', error.message);
-            Swal.fire({
-                icon: "error",
-                title: "Error fetching properties!",
-                text: error.message,
-            });
         } finally {
             dispatch(hide());
         }
