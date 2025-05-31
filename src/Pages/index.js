@@ -7,6 +7,7 @@ import SignupAgent from "./SignupAgent";
 import AddNewProperties from "./AddNewProperties";
 import Message from "./Message";
 import Profile from "./Profile";
+import AboutUs from "./AboutUs";
 
 
 export {
@@ -19,4 +20,5 @@ export {
     AddNewProperties,
     Message,
     Profile,
+    AboutUs,
 }

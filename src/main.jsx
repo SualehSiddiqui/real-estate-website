@@ -8,7 +8,10 @@ import { Provider } from 'react-redux';
 import store from "./Store/store.js";
 
 //Pages
-import { Home, Buy, Rent, Property, LoginAgent, SignupAgent, AddNewProperties, Message, Profile } from "./Pages";
+import {
+  Home, Buy, Rent, Property, LoginAgent, SignupAgent,
+  AddNewProperties, Message, Profile, AboutUs
+} from "./Pages";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -22,6 +25,7 @@ const router = createBrowserRouter(
       <Route path='/add-new-properties' element={<AddNewProperties />} />
       <Route path='/message' element={<Message />} />
       <Route path='/profile' element={<Profile />} />
+      <Route path='/about-us' element={<AboutUs />} />
     </Route>
   )
 )

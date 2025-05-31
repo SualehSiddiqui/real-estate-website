@@ -70,7 +70,7 @@ const Home = () => {
                 <Rentals heading="Available for Rents" data={rentProperties} />
                 <Rentals heading="Available for Sale" data={sellProperties} />
                 <About />
-                <Testimonials />
+                {/* <Testimonials /> */}
                 <WhyUs />
             </div>
             <Footer />

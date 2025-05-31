@@ -39,7 +39,7 @@ function NavbarComp({ withoutHero }) {
         },
         {
             title: 'About',
-            link: '/about',
+            link: '/about-us',
             show: true
         },
         {
