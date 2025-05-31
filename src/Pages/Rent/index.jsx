@@ -107,8 +107,8 @@ const Rent = () => {
                     </Container>
                 </div>
                 <WhyUs />
-                <Footer />
             </div>
+            <Footer />
         </>
     )
 }
