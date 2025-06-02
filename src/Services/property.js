@@ -99,6 +99,17 @@ class PropertyService {
         }
     };
 
+    async getCityOrState(type, query = '') {
+        try {
+            const response = await this.intialApi.get(`/cityOrState`, {
+                params: { type, q: query },
+            });
+            return response.data;
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
     handleError(error) {
         if (error.response) {
             throw new Error(error.response.data.message || "Something went wrong");

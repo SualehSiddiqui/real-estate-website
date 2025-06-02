@@ -3,10 +3,9 @@ import { Navbar, Footer, Table, CustomAutoComplete } from "../../Components";
 import { Button, Container } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { Image, Space } from "antd";
-import { chunkArray, UsCities } from "../../Utils";
+import { chunkArray } from "../../Utils";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import UsStates from 'states-us';
 import propertyService from "../../Services/property";
 import { show, hide } from "../../Store/spinnerSlice";
 import Swal from "sweetalert2";
@@ -24,7 +23,6 @@ const AddNewProperties = () => {
         }
     }, [isChecking, status, navigate]);
 
-
     const [searchValue, setSearchValue] = useState("");
     const [propertyDiv, setPropertyDiv] = useState("")
     const [totalProperties, setTotalProperties] = useState(0);
@@ -32,13 +30,8 @@ const AddNewProperties = () => {
     const [limit, setLimit] = useState(25);
     const [files, setFiles] = useState([]);
     const [filesEdit, setFilesEdit] = useState([]);
-    const [states, setStates] = useState([]);
     const [currentEditProperty, setCurrentEditProperty] = useState('');
     const [rows, setRows] = useState([]);
-
-    useEffect(() => {
-        setStates(UsStates.map(x => x.name.toLowerCase()))
-    }, [])
 
     const [property, setProperty] = useState({
         name: '',
@@ -79,7 +72,7 @@ const AddNewProperties = () => {
         homeFeatures: '',
     });
 
-    const [propertFeatures, setPropertyFeatures] = useState([
+    const [propertyFeatures, setPropertyFeatures] = useState([
         {
             title: 'Bedrooms',
             list: [],
@@ -260,13 +253,14 @@ const AddNewProperties = () => {
     const columns = [
         {
             name: "Property Name",
-            style: { width: "30%" },
+            style: { width: "25%" },
             key: 'title',
         },
         {
             name: "Property Address",
-            style: { width: "40%" },
+            style: { width: "45%" },
             key: 'address',
+            limit: 55
         },
     ];
     const actions = [
@@ -328,7 +322,7 @@ const AddNewProperties = () => {
 
     useEffect(() => {
         getProperty(currentPage, limit, user?._id);
-    }, [currentPage, limit, user])
+    }, [currentPage, limit, user]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -352,24 +346,29 @@ const AddNewProperties = () => {
                 ...propertyDetails
             },
             features: [
-                ...propertFeatures
+                ...propertyFeatures
             ],
             imgUrl: [],
         };
 
         try {
-            const data = await propertyService.createProperty(propertyObj);
-            await propertyService.uploadFiles(data.property._id, files);
+            if (files.length > 0 || filesEdit.length > 0) {
+                const data = await propertyService.createProperty(propertyObj);
+                await propertyService.uploadFiles(data.property._id, files);
 
-            reset();
-            setPropertyDiv("");
-            getProperty(currentPage, limit, user?._id);
+                reset();
+                setPropertyDiv("");
+                getProperty(currentPage, limit, user?._id);
 
-            Swal.fire({
-                icon: "success",
-                title: "Added..",
-                text: "Property Has Been Added",
-            });
+                Swal.fire({
+                    icon: "success",
+                    title: "Added..",
+                    text: "Property Has Been Added",
+                });
+                window.scrollTo(0, 0)
+            } else {
+                throw new Error("Images Cannot Be Empty");
+            }
         } catch (error) {
             Swal.fire({
                 icon: "error",
@@ -407,24 +406,29 @@ const AddNewProperties = () => {
                 ...propertyDetails
             },
             features: [
-                ...propertFeatures
+                ...propertyFeatures
             ],
             imgUrl: filesEdit,
         };
 
         try {
-            const data = await propertyService.updateProperty(currentEditProperty, propertyObj);
-            await propertyService.uploadFiles(data.property._id, files);
+            if (files.length > 0 || filesEdit.length > 0) {
+                const data = await propertyService.updateProperty(currentEditProperty, propertyObj);
+                await propertyService.uploadFiles(data.property._id, files);
 
-            reset();
-            setPropertyDiv("");
-            getProperty(currentPage, limit, user?._id);
+                reset();
+                setPropertyDiv("");
+                getProperty(currentPage, limit, user?._id);
 
-            Swal.fire({
-                icon: "success",
-                title: "Updated..",
-                text: "Property Has Been Updated",
-            });
+                Swal.fire({
+                    icon: "success",
+                    title: "Updated..",
+                    text: "Property Has Been Updated",
+                });
+                window.scrollTo(0, 0)
+            } else {
+                throw new Error("Images Cannot Be Empty");
+            }
         } catch (error) {
             Swal.fire({
                 icon: "error",
@@ -577,7 +581,7 @@ const AddNewProperties = () => {
 
 
     const FeatureList = ({ categoryTitle }) => {
-        const category = propertFeatures.find(cat => cat.title.toLowerCase() === categoryTitle.toLowerCase());
+        const category = propertyFeatures.find(cat => cat.title.toLowerCase() === categoryTitle.toLowerCase());
         if (!category || category.list.length === 0) return null;
 
         return (
@@ -751,21 +755,22 @@ const AddNewProperties = () => {
                                                 State:
                                             </label>
                                             <CustomAutoComplete
-                                                options={states}
                                                 value={property.state}
                                                 onChange={onChange}
                                                 city={false}
+                                                type="state"
                                             />
+
                                         </div>
                                         <div className="col-12 col-md-6 mt-1">
                                             <label htmlFor="lotSqft">
                                                 City:
                                             </label>
                                             <CustomAutoComplete
-                                                options={UsCities}
                                                 value={property.city}
                                                 onChange={onChange}
                                                 city={true}
+                                                type="city"
                                             />
                                         </div>
                                         <div className="col-12 col-md-6 mt-1">
@@ -1136,26 +1141,6 @@ const AddNewProperties = () => {
                                                 Add
                                             </Button>
                                             <FeatureList categoryTitle="Amenities and Community Features" />
-                                            {/* <div className="d-flex flex-wrap">
-                                                {
-                                                    chunkArray(propertFeatures.amenities, 10).map((chunk, idx) => (
-                                                        <ul key={idx} className="mt-0 mb-0 col-12 col-md-6">
-                                                            {chunk.map((listItem, i) => (
-                                                                <li className="mt-1 d-flex list-style-bullet justify-content-between" key={i}>
-                                                                    {listItem}
-                                                                    <Button
-                                                                        variant="outline-danger"
-                                                                        className="py-0 ms-5"
-                                                                        onClick={() => handleDeleteFeature('amenities', i)}
-                                                                    >
-                                                                        Delete
-                                                                    </Button>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    ))
-                                                }
-                                            </div> */}
                                         </div>
                                         <div className="col-12 mt-1 property-feature">
                                             <label htmlFor="otherInfo">

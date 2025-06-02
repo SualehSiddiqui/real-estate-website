@@ -4,7 +4,7 @@ import { Container } from 'react-bootstrap';
 import HeroImg from "../../Assets/hero.png";
 import { WhyUs } from "../../Sections";
 import { useEffect, useState } from "react";
-import propertyService from "../../Services/property";
+import propertyService from "../../Services/property.js";
 import Swal from "sweetalert2";
 import { useDispatch } from "react-redux";
 import { show, hide } from "../../Store/spinnerSlice";
