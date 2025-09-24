@@ -129,9 +129,9 @@ const LoginAgent = () => {
                                 Forgot your password?
                             </Link>
                             <button type="submit">Login</button>
-                            <Link to={'/signup-as-agent'} className="login-page-link">
+                            {/* <Link to={'/signup-as-agent'} className="login-page-link">
                                 Create New Account
-                            </Link>
+                            </Link> */}
                         </form>
                     </Container>
                 </div>

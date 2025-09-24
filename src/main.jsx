@@ -9,7 +9,8 @@ import store from "./Store/store.js";
 
 //Pages
 import {
-  Home, Buy, Rent, Property, LoginAgent, SignupAgent,
+  Home, Buy, Rent, Property, LoginAgent,
+  //  SignupAgent,
   AddNewProperties, Message, Profile, AboutUs
 } from "./Pages";
 
@@ -21,7 +22,7 @@ const router = createBrowserRouter(
       <Route path='/rent' element={<Rent />} />
       <Route path='/property/:id' element={<Property />} />
       <Route path='/login-as-agent' element={<LoginAgent />} />
-      <Route path='/signup-as-agent' element={<SignupAgent />} />
+      {/* <Route path='/signup-as-agent' element={<SignupAgent />} /> */}
       <Route path='/add-new-properties' element={<AddNewProperties />} />
       <Route path='/message' element={<Message />} />
       <Route path='/profile' element={<Profile />} />
